@@ -1,0 +1,15 @@
+# Virtual environment (rebuilt with: python -m venv .venv)
+.venv/
+
+# Secrets - NEVER commit
+.env
+
+# Python cache files
+__pycache__/
+*.pyc
+
+# Local database with my real scores
+*.db
+
+# Streamlit local secrets
+.streamlit/secrets.toml
