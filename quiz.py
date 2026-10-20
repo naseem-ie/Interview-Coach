@@ -1,6 +1,7 @@
 """Question bank and daily challenge logic for Interview Coach."""
 
 import json
+import random
 import re
 from pathlib import Path
 
@@ -29,3 +30,25 @@ def topics_for_job(skill_gaps, topics):
     if "behavioural" not in matched:
         matched.append("behavioural")
     return matched
+
+
+def _priority(question, history):
+    """Lower number = shown first. Wrong last time, then new, then seen, then mastered."""
+    record = history.get(question["id"])
+    if record is None:
+        return 1
+    if not record["last_correct"]:
+        return 0
+    if record["correct_streak"] >= 3:
+        return 3
+    return 2
+
+
+def pick_daily_questions(bank, topic_ids, day, job_id="", count=5, history=None):
+    """Pick today's questions for one job. Same day and job always give the same set."""
+    history = history or {}
+    pool = [q for q in bank["questions"] if q["topic"] in topic_ids]
+    rng = random.Random(f"{job_id}-{day.isoformat()}")
+    rng.shuffle(pool)
+    pool.sort(key=lambda q: _priority(q, history))
+    return pool[:count]
