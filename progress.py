@@ -57,15 +57,30 @@ def complete_challenge(conn, day, job_id):
     conn.commit()
 
 
-def question_history(conn):
-    """For each question: was the latest answer right, and how many right in a row."""
+def question_history(conn, before=None):
+    """For each question: was the latest answer right, and how many right in a row.
+
+    Pass before=today to ignore today's answers, so today's question set stays fixed.
+    """
     history = {}
-    rows = conn.execute("SELECT question_id, correct FROM answers ORDER BY id")
+    query, params = "SELECT question_id, correct FROM answers", ()
+    if before is not None:
+        query, params = query + " WHERE day < ?", (before.isoformat(),)
+    rows = conn.execute(query + " ORDER BY id", params)
     for question_id, correct in rows:
         record = history.setdefault(question_id, {"last_correct": False, "correct_streak": 0})
         record["last_correct"] = bool(correct)
         record["correct_streak"] = record["correct_streak"] + 1 if correct else 0
     return history
+
+
+def answers_for_day(conn, day, job_id):
+    """Today's answers for one job: {question_id: True/False}."""
+    rows = conn.execute(
+        "SELECT question_id, correct FROM answers WHERE day = ? AND job_id = ? ORDER BY id",
+        (day.isoformat(), job_id),
+    )
+    return {question_id: bool(correct) for question_id, correct in rows}
 
 
 def total_xp(conn):
@@ -107,3 +122,24 @@ def readiness(conn, topic_ids, min_answered=3, pass_rate=0.8):
         if len(results) >= min_answered and sum(results) / len(results) >= pass_rate:
             mastered += 1
     return round(100 * mastered / len(topic_ids))
+
+
+def topic_stats(conn, topic_ids, min_answered=3, pass_rate=0.8):
+    """Per topic: questions answered, how many right (latest tries), and a status label."""
+    latest = {}
+    rows = conn.execute("SELECT question_id, topic, correct FROM answers ORDER BY id")
+    for question_id, topic, correct in rows:
+        latest[question_id] = (topic, correct)
+
+    stats = {}
+    for topic in topic_ids:
+        results = [correct for t, correct in latest.values() if t == topic]
+        answered, right = len(results), sum(results)
+        if answered == 0:
+            status = "Not started"
+        elif answered >= min_answered and right / answered >= pass_rate:
+            status = "Mastered"
+        else:
+            status = "Learning"
+        stats[topic] = {"answered": answered, "correct": right, "status": status}
+    return stats

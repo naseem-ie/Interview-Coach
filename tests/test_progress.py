@@ -5,8 +5,8 @@ from datetime import date, timedelta
 import pytest
 
 from progress import (
-    complete_challenge, connect, level_for, question_history, readiness,
-    record_answer, streak, total_xp,
+    answers_for_day, complete_challenge, connect, level_for, question_history, readiness,
+    record_answer, streak, topic_stats, total_xp,
 )
 
 TODAY = date(2026, 10, 20)
@@ -78,3 +78,33 @@ def test_readiness_counts_mastered_topics(conn):
 
     # linux mastered (3 of 3 right); sql not yet (only 1 answered); docker untouched
     assert readiness(conn, ["linux", "sql", "docker"]) == 33
+
+
+def test_history_can_ignore_todays_answers(conn):
+    record_answer(conn, TODAY - timedelta(days=1), "job-1", q("sql-01"), True)
+    record_answer(conn, TODAY, "job-1", q("sql-02"), False)
+
+    history = question_history(conn, before=TODAY)
+
+    assert "sql-01" in history
+    assert "sql-02" not in history
+
+
+def test_answers_for_day_only_returns_that_day_and_job(conn):
+    record_answer(conn, TODAY, "job-1", q("linux-01"), True)
+    record_answer(conn, TODAY, "job-2", q("linux-02"), True)
+    record_answer(conn, TODAY - timedelta(days=1), "job-1", q("linux-03"), False)
+
+    assert answers_for_day(conn, TODAY, "job-1") == {"linux-01": True}
+
+
+def test_topic_stats_labels_each_topic(conn):
+    for n in range(1, 4):
+        record_answer(conn, TODAY, "job-1", q(f"linux-0{n}", "linux"), True)
+    record_answer(conn, TODAY, "job-1", q("sql-01", "sql"), False)
+
+    stats = topic_stats(conn, ["linux", "sql", "docker"])
+
+    assert stats["linux"] == {"answered": 3, "correct": 3, "status": "Mastered"}
+    assert stats["sql"] == {"answered": 1, "correct": 0, "status": "Learning"}
+    assert stats["docker"]["status"] == "Not started"

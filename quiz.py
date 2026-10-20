@@ -52,3 +52,15 @@ def pick_daily_questions(bank, topic_ids, day, job_id="", count=5, history=None)
     rng.shuffle(pool)
     pool.sort(key=lambda q: _priority(q, history))
     return pool[:count]
+
+
+CORE_TECHNICAL = ["itil", "linux", "sql"]
+
+
+def split_topics(topic_ids):
+    """Split a job's topics into (technical, behavioural).
+
+    If the job has no technical skill gaps recorded, fall back to core support topics.
+    """
+    technical = [t for t in topic_ids if t != "behavioural"]
+    return technical or list(CORE_TECHNICAL), ["behavioural"]
