@@ -9,6 +9,7 @@ from notion_client import APIResponseError
 
 from aptitude import CHALLENGE_ID as APTITUDE_ID, TARGET_SECONDS, daily_aptitude
 from ai_practice import render_ai_practice
+from interview_page import render_interview
 from aptitude_page import render_extra, render_mock, render_tips, show_tip
 
 from notion_data import STATUSES, load_job_description, load_jobs, update_status
@@ -139,14 +140,17 @@ st.divider()
 # ---------- Choose what to practise ----------
 mode = st.radio(
     "What do you want to practise?",
-    ["🛠️ Technical", "🗣️ Behavioural", "🧠 Aptitude"],
+    ["🛠️ Technical", "🗣️ Behavioural", "🧠 Aptitude", "🎤 Mock interview"],
     horizontal=True,
 )
-mode_key = {"🛠": "technical", "🗣": "behavioural", "🧠": "aptitude"}[mode[0]]
+mode_key = {"🛠": "technical", "🗣": "behavioural", "🧠": "aptitude", "🎤": "interview"}[mode[0]]
 history = question_history(conn, before=today)
 
 run_daily = True
-if mode_key == "aptitude":
+if mode_key == "interview":
+    render_interview(conn, today, job)
+    run_daily = False
+elif mode_key == "aptitude":
     st.caption(
         "Aptitude tests (like the CCAT or SHL) often arrive without warning before interviews. "
         "They are the same for every job: numerical, logical and verbal."

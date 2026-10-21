@@ -223,3 +223,24 @@ def test_technical_readiness_combines_bank_topics_and_ai_skills():
 
     assert combined_readiness(bank, ai) == 50  # 10 right of 20
     assert combined_readiness({}, {}) == 0
+
+
+# ---------- Mock interviews ----------
+
+from progress import interviews, save_interview
+
+
+def test_interviews_are_saved_with_answers_and_skips_left_out(conn):
+    feedback = {"checklist": {}, "strength": "Clear.", "tips": ["Add a number."]}
+    results = [
+        {"question": "Q1", "answer": "My answer", "score": 6, "feedback": feedback},
+        {"question": "Q2", "answer": "", "score": None, "feedback": None},
+    ]
+    save_interview(conn, TODAY, "job-1", results, 6.0)
+    save_interview(conn, TODAY, "job-1", results[:1], 8.0)
+
+    past = interviews(conn, "job-1")
+    assert [p["average"] for p in past] == [8.0, 6.0]  # newest first
+    assert past[1]["answered"] == 1
+    assert past[1]["answers"][0]["feedback"]["tips"] == ["Add a number."]
+    assert interviews(conn, "job-2") == []

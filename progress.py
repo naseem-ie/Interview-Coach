@@ -57,8 +57,70 @@ def connect(path=DB_FILE):
             reported INTEGER NOT NULL DEFAULT 0
         )"""
     )
+    conn.execute(
+        """CREATE TABLE IF NOT EXISTS interviews (
+            id INTEGER PRIMARY KEY,
+            day TEXT NOT NULL,
+            job_id TEXT NOT NULL,
+            average REAL NOT NULL,
+            answered INTEGER NOT NULL
+        )"""
+    )
+    conn.execute(
+        """CREATE TABLE IF NOT EXISTS interview_answers (
+            interview_id INTEGER NOT NULL,
+            position INTEGER NOT NULL,
+            question TEXT NOT NULL,
+            answer TEXT NOT NULL,
+            score INTEGER NOT NULL,
+            feedback TEXT NOT NULL
+        )"""
+    )
     conn.commit()
     return conn
+
+
+def save_interview(conn, day, job_id, results, average):
+    """Save a finished mock interview and every answer with its feedback. Returns its id."""
+    answered = [r for r in results if r.get("score") is not None]
+    cursor = conn.execute(
+        "INSERT INTO interviews (day, job_id, average, answered) VALUES (?, ?, ?, ?)",
+        (day.isoformat(), job_id, average, len(answered)),
+    )
+    interview_id = cursor.lastrowid
+    conn.executemany(
+        "INSERT INTO interview_answers (interview_id, position, question, answer, score, feedback) "
+        "VALUES (?, ?, ?, ?, ?, ?)",
+        [
+            (interview_id, n, r["question"], r["answer"], r["score"], json.dumps(r["feedback"]))
+            for n, r in enumerate(answered)
+        ],
+    )
+    conn.commit()
+    return interview_id
+
+
+def interviews(conn, job_id):
+    """Past mock interviews for a job, newest first, each with its answers."""
+    rows = conn.execute(
+        "SELECT id, day, average, answered FROM interviews WHERE job_id = ? ORDER BY id DESC",
+        (job_id,),
+    ).fetchall()
+    result = []
+    for interview_id, day, average, answered in rows:
+        answers = conn.execute(
+            "SELECT question, answer, score, feedback FROM interview_answers "
+            "WHERE interview_id = ? ORDER BY position",
+            (interview_id,),
+        )
+        result.append({
+            "day": day, "average": average, "answered": answered,
+            "answers": [
+                {"question": q, "answer": a, "score": sc, "feedback": json.loads(f)}
+                for q, a, sc, f in answers
+            ],
+        })
+    return result
 
 
 def save_ai_questions(conn, day, job_id, skill, questions):
