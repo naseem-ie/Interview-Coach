@@ -4,7 +4,9 @@ from datetime import date
 
 import streamlit as st
 
-from notion_data import load_jobs
+from notion_client import APIResponseError
+
+from notion_data import STATUSES, load_job_description, load_jobs, update_status
 from progress import (
     XP_PER_CHALLENGE, XP_PER_CORRECT, XP_PER_LEVEL, answers_for_day, complete_challenge,
     connect, job_summary, level_for, question_history, readiness, record_answer, streak,
@@ -21,6 +23,12 @@ LETTERS = "ABCD"
 def get_jobs():
     """Load jobs from Notion, reusing the result for 5 minutes."""
     return load_jobs()
+
+
+@st.cache_data(ttl=300)
+def get_description(page_id):
+    """Load the job advert written inside the job's Notion page."""
+    return load_job_description(page_id)
 
 
 @st.cache_data
@@ -216,7 +224,26 @@ else:
 conn.close()
 
 # ---------- Job details ----------
-with st.expander("About this job"):
+st.divider()
+st.subheader("📄 About this job")
+
+with st.expander("Job description and requirements", expanded=False):
+    try:
+        description = get_description(job["id"])
+    except Exception as error:
+        description = ""
+        st.warning(f"Could not load the description from Notion: {error}")
+    if description:
+        st.markdown(description)
+    else:
+        st.info(
+            "No job description saved yet. Open this job in Notion and paste the job advert "
+            "into the page, then click 🔄 Refresh from Notion."
+        )
+    if job["job_link"]:
+        st.link_button("Open job posting", job["job_link"])
+
+with st.expander("Your notes, next steps and contacts"):
     if job["next_action"]:
         st.write(f"**Next action:** {job['next_action']}")
     if job["follow_up_due"]:
@@ -224,7 +251,28 @@ with st.expander("About this job"):
     if job["skill_gaps"]:
         st.write(f"**Skill gaps:** {job['skill_gaps']}")
     st.write(f"**Recruiter:** {job['recruiter'] or '-'}")
-    if job["job_link"]:
-        st.link_button("Open job posting", job["job_link"])
+    st.write(f"**Salary:** {job['salary'] or '-'}")
+    if job["notes"]:
+        st.write(f"**Notes:** {job['notes']}")
     if job["prep_page"]:
         st.link_button("Open prep page in Notion", job["prep_page"])
+
+with st.expander("✏️ Update status"):
+    current = job["status"] if job["status"] in STATUSES else STATUSES[0]
+    new_status = st.selectbox("Status", STATUSES, index=STATUSES.index(current))
+    if st.button("Save to Notion", disabled=new_status == job["status"]):
+        try:
+            update_status(job["id"], new_status)
+        except APIResponseError as error:
+            if error.code == "restricted_resource":
+                st.error(
+                    "Your Notion connection is read-only. In Notion, open the Interview Coach "
+                    "connection, tick 'Update content' and save, then try again."
+                )
+            else:
+                st.error(f"Notion refused the change: {error}")
+        else:
+            get_jobs.clear()
+            st.success(f"Saved: {job['company']} is now '{new_status}'.")
+            st.rerun()
+    st.caption("Inactive, rejected and withdrawn jobs are hidden unless you tick the box in the sidebar.")
