@@ -35,8 +35,38 @@ def connect(path=DB_FILE):
             PRIMARY KEY (day, job_id)
         )"""
     )
+    conn.execute(
+        """CREATE TABLE IF NOT EXISTS mock_tests (
+            id INTEGER PRIMARY KEY,
+            day TEXT NOT NULL,
+            format TEXT NOT NULL,
+            right INTEGER NOT NULL,
+            answered INTEGER NOT NULL,
+            total INTEGER NOT NULL,
+            seconds INTEGER NOT NULL
+        )"""
+    )
     conn.commit()
     return conn
+
+
+def record_mock_test(conn, day, format_key, right, answered, total, seconds):
+    """Save the result of a timed mock test."""
+    conn.execute(
+        "INSERT INTO mock_tests (day, format, right, answered, total, seconds) VALUES (?, ?, ?, ?, ?, ?)",
+        (day.isoformat(), format_key, right, answered, total, seconds),
+    )
+    conn.commit()
+
+
+def mock_tests(conn, format_key):
+    """Past results for one mock test format, newest first."""
+    rows = conn.execute(
+        "SELECT day, right, answered, total, seconds FROM mock_tests WHERE format = ? ORDER BY id DESC",
+        (format_key,),
+    )
+    keys = ["day", "right", "answered", "total", "seconds"]
+    return [dict(zip(keys, row)) for row in rows]
 
 
 def record_answer(conn, day, job_id, question, correct):
@@ -173,8 +203,9 @@ def job_summary(conn, job_id):
 
 
 def recent_accuracy(conn, job_id, last=30):
-    """Percent right over the most recent answers for one challenge (e.g. 'aptitude')."""
+    """Percent right over the most recent answers for a challenge and its parts (e.g. 'aptitude')."""
+    condition, params = _job_filter(job_id)
     rows = conn.execute(
-        "SELECT correct FROM answers WHERE job_id = ? ORDER BY id DESC LIMIT ?", (job_id, last)
+        f"SELECT correct FROM answers WHERE {condition} ORDER BY id DESC LIMIT ?", params + (last,)
     ).fetchall()
     return round(100 * sum(r[0] for r in rows) / len(rows)) if rows else 0
