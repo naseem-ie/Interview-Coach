@@ -73,7 +73,10 @@ st.markdown("#### 🎯 Readiness for this job")
 col1, col2, col3 = st.columns(3)
 col1.metric("🛠️ Technical", f"{readiness(conn, technical, sizes)}%")
 col2.metric("🗣️ Behavioural", f"{readiness(conn, behavioural, sizes)}%")
-col3.metric("✍️ Practised here", f"{summary['correct']} of {summary['answered']} right")
+col3.metric(
+    "✍️ All answers for this job",
+    f"{summary['correct']} of {summary['answered']} correct",
+)
 st.caption(
     f"Readiness = share of this job's topic questions you have got right on your latest try. "
     f"You have earned {summary['xp']} XP and finished {summary['challenges']} "
