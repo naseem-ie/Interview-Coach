@@ -14,6 +14,7 @@ from ai_practice import render_ai_practice
 from interview_page import render_interview
 from aptitude_page import render_extra, render_mock, render_tips, show_tip
 
+from demo import DEMO_DB, demo_mode, load_sample_jobs, sample_description
 from notion_data import STATUSES, load_job_description, load_jobs, update_status
 from progress import (
     DB_FILE, XP_PER_CHALLENGE, XP_PER_CORRECT, XP_PER_LEVEL, ai_questions, ai_skill_stats,
@@ -23,20 +24,21 @@ from progress import (
 from quiz import load_bank, pick_daily_questions, split_topics, topic_sizes, topics_for_job, uncovered_gaps
 
 st.set_page_config(page_title="Interview Coach", page_icon="🎯")
+DEMO = demo_mode()
 CLOSED = {"No reply - inactive", "Rejected", "Withdrawn"}
 LETTERS = "ABCD"
 
 
 @st.cache_data(ttl=300)
 def get_jobs():
-    """Load jobs from Notion, reusing the result for 5 minutes."""
-    return load_jobs()
+    """Load jobs from Notion (or the sample jobs in demo mode), reusing the result for 5 minutes."""
+    return load_sample_jobs() if DEMO else load_jobs()
 
 
 @st.cache_data(ttl=300)
 def get_description(page_id):
     """Load the job advert written inside the job's Notion page."""
-    return load_job_description(page_id)
+    return sample_description(page_id) if DEMO else load_job_description(page_id)
 
 
 @st.cache_data
@@ -48,6 +50,11 @@ def get_bank():
 # ---------- Sidebar: pick a job ----------
 with st.sidebar:
     st.header("🎯 Interview Coach")
+    if DEMO:
+        st.info(
+            "🧪 **Demo mode**: made-up sample jobs and separate demo progress. "
+            "Add your Notion key to .env to use your own jobs."
+        )
     if st.button("🔄 Refresh from Notion"):
         get_jobs.clear()
     try:
@@ -73,55 +80,56 @@ with st.sidebar:
 # ---------- Today's questions and progress ----------
 bank = get_bank()
 today = date.today()
-conn = connect()
+conn = connect(DEMO_DB if DEMO else DB_FILE)
 
 # ---------- Sidebar: backup and export ----------
-with st.sidebar:
-    folder = backup_folder()
-    if not st.session_state.get("backup_checked"):
-        st.session_state["backup_checked"] = True
-        try:
-            if daily_backup(DB_FILE, folder, today):
-                st.toast("💾 Today's backup saved")
-        except OSError as error:
-            st.warning(f"Daily backup failed: {error}")
-    with st.expander("💾 Backup & export"):
-        st.caption(
-            "Your progress is backed up **automatically** once a day to this folder "
-            "(OneDrive keeps it safe in the cloud). You don't need to do anything."
-        )
-        st.code(str(folder), language=None)
-        saved = backups(folder)
-        latest = saved[0].stem.removeprefix("progress-") if saved else "none yet"
-        st.caption(f"Latest backup: {latest} · {len(saved)} kept (newest 10)")
-        col1, col2 = st.columns(2)
-        if col1.button("Back up now"):
+if not DEMO:  # demo progress is throwaway, so it is not backed up
+    with st.sidebar:
+        folder = backup_folder()
+        if not st.session_state.get("backup_checked"):
+            st.session_state["backup_checked"] = True
             try:
-                saved = [backup_now(DB_FILE, folder, today)]
-                st.success(f"Saved {saved[0].name}")
+                if daily_backup(DB_FILE, folder, today):
+                    st.toast("💾 Today's backup saved")
             except OSError as error:
-                st.error(f"Backup failed: {error}")
-        if hasattr(os, "startfile") and col2.button("📂 Open folder"):
-            folder.mkdir(parents=True, exist_ok=True)
-            os.startfile(folder)  # opens File Explorer (Windows only)
-        if saved:
-            st.download_button(
-                "📥 Download a backup copy", saved[0].read_bytes(), file_name=saved[0].name,
-                mime="application/octet-stream",
+                st.warning(f"Daily backup failed: {error}")
+        with st.expander("💾 Backup & export"):
+            st.caption(
+                "Your progress is backed up **automatically** once a day to this folder "
+                "(OneDrive keeps it safe in the cloud). You don't need to do anything."
             )
-        names = {j["id"]: f"{j['company']} - {j['role']}" for j in jobs}
-        st.download_button(
-            "📥 My answers (CSV)", answers_csv(conn, names).encode("utf-8-sig"),
-            file_name=f"interview-coach-answers-{today}.csv", mime="text/csv",
-        )
-        st.download_button(
-            "📥 My mock interviews (CSV)", interviews_csv(conn, names).encode("utf-8-sig"),
-            file_name=f"interview-coach-interviews-{today}.csv", mime="text/csv",
-        )
-        st.caption(
-            "**To restore on a new laptop:** close the app, copy the newest backup into the "
-            "project folder, rename it to progress.db, then start the app."
-        )
+            st.code(str(folder), language=None)
+            saved = backups(folder)
+            latest = saved[0].stem.removeprefix("progress-") if saved else "none yet"
+            st.caption(f"Latest backup: {latest} · {len(saved)} kept (newest 10)")
+            col1, col2 = st.columns(2)
+            if col1.button("Back up now"):
+                try:
+                    saved = [backup_now(DB_FILE, folder, today)]
+                    st.success(f"Saved {saved[0].name}")
+                except OSError as error:
+                    st.error(f"Backup failed: {error}")
+            if hasattr(os, "startfile") and col2.button("📂 Open folder"):
+                folder.mkdir(parents=True, exist_ok=True)
+                os.startfile(folder)  # opens File Explorer (Windows only)
+            if saved:
+                st.download_button(
+                    "📥 Download a backup copy", saved[0].read_bytes(), file_name=saved[0].name,
+                    mime="application/octet-stream",
+                )
+            names = {j["id"]: f"{j['company']} - {j['role']}" for j in jobs}
+            st.download_button(
+                "📥 My answers (CSV)", answers_csv(conn, names).encode("utf-8-sig"),
+                file_name=f"interview-coach-answers-{today}.csv", mime="text/csv",
+            )
+            st.download_button(
+                "📥 My mock interviews (CSV)", interviews_csv(conn, names).encode("utf-8-sig"),
+                file_name=f"interview-coach-interviews-{today}.csv", mime="text/csv",
+            )
+            st.caption(
+                "**To restore on a new laptop:** close the app, copy the newest backup into the "
+                "project folder, rename it to progress.db, then start the app."
+            )
 
 topic_ids = topics_for_job(job["skill_gaps"], bank["topics"])
 technical, behavioural = split_topics(topic_ids)
@@ -381,6 +389,9 @@ with st.expander("✏️ Update status"):
     current = job["status"] if job["status"] in STATUSES else STATUSES[0]
     new_status = st.selectbox("Status", STATUSES, index=STATUSES.index(current))
     if st.button("Save to Notion", disabled=new_status == job["status"]):
+        if DEMO:
+            st.info("Demo mode: sample jobs can't be changed. With your own Notion key, this saves to Notion.")
+            st.stop()
         try:
             update_status(job["id"], new_status)
         except APIResponseError as error:
