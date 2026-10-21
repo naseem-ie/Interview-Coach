@@ -170,3 +170,11 @@ def job_summary(conn, job_id):
         "challenges": challenges,
         "xp": right * XP_PER_CORRECT + challenges * XP_PER_CHALLENGE,
     }
+
+
+def recent_accuracy(conn, job_id, last=30):
+    """Percent right over the most recent answers for one challenge (e.g. 'aptitude')."""
+    rows = conn.execute(
+        "SELECT correct FROM answers WHERE job_id = ? ORDER BY id DESC LIMIT ?", (job_id, last)
+    ).fetchall()
+    return round(100 * sum(r[0] for r in rows) / len(rows)) if rows else 0

@@ -1,15 +1,19 @@
 """Interview Coach - a daily challenge for the job you are preparing for."""
 
+import time
 from datetime import date
 
 import streamlit as st
 
 from notion_client import APIResponseError
 
+from aptitude import APTITUDE_TOPICS, CHALLENGE_ID as APTITUDE_ID, TARGET_SECONDS, daily_aptitude
+
 from notion_data import STATUSES, load_job_description, load_jobs, update_status
 from progress import (
     XP_PER_CHALLENGE, XP_PER_CORRECT, XP_PER_LEVEL, answers_for_day, complete_challenge,
-    connect, job_summary, level_for, question_history, readiness, record_answer, streak,
+    connect, job_summary, level_for, question_history, readiness, recent_accuracy, record_answer,
+    streak,
     topic_stats, total_xp,
 )
 from quiz import load_bank, pick_daily_questions, split_topics, topic_sizes, topics_for_job
@@ -110,10 +114,11 @@ days = streak(conn, today)
 xp_to_next = XP_PER_LEVEL - xp_into_level
 with st.container(border=True):
     st.caption("🌍 Overall progress across all jobs")
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
     col1.metric("🔥 Streak", f"{days} day" if days == 1 else f"{days} days")
     col2.metric(f"⭐ Level · {level_name}", level_number)
     col3.metric("💎 Total XP", xp)
+    col4.metric("🧠 Aptitude", f"{recent_accuracy(conn, APTITUDE_ID)}%", help="Accuracy over your last 30 aptitude answers")
     st.progress(min(xp_into_level / XP_PER_LEVEL, 1.0), text=f"{xp_to_next} XP to the next level")
 
 st.divider()
@@ -121,21 +126,30 @@ st.divider()
 # ---------- Choose what to practise ----------
 mode = st.radio(
     "What do you want to practise?",
-    ["🛠️ Technical", "🗣️ Behavioural"],
+    ["🛠️ Technical", "🗣️ Behavioural", "🧠 Aptitude"],
     horizontal=True,
 )
-mode_key = "technical" if mode.startswith("🛠") else "behavioural"
-practice_topics = technical if mode_key == "technical" else behavioural
-if mode_key == "technical" and not any(t != "behavioural" for t in topic_ids):
-    st.info(
-        "No technical skill gaps recorded for this job in Notion, so these are core support "
-        "topics (ITIL, Linux, SQL). Add skill gaps in Notion to tailor them."
-    )
-st.caption("Topics: " + " · ".join(bank["topics"][t]["name"] for t in practice_topics))
-
-challenge_id = f"{job['id']}:{mode_key}"
+mode_key = {"🛠": "technical", "🗣": "behavioural", "🧠": "aptitude"}[mode[0]]
 history = question_history(conn, before=today)
-questions = pick_daily_questions(bank, practice_topics, today, job_id=challenge_id, history=history)
+
+if mode_key == "aptitude":
+    st.caption(
+        "Aptitude tests (like the CCAT or SHL) screen candidates before interviews. This set is "
+        f"the same for every job: numerical, logical and verbal. Aim for under {TARGET_SECONDS} "
+        "seconds a question."
+    )
+    challenge_id = APTITUDE_ID
+    questions = daily_aptitude(bank, today, history=history)
+else:
+    practice_topics = technical if mode_key == "technical" else behavioural
+    if mode_key == "technical" and not any(t != "behavioural" for t in topic_ids):
+        st.info(
+            "No technical skill gaps recorded for this job in Notion, so these are core support "
+            "topics (ITIL, Linux, SQL). Add skill gaps in Notion to tailor them."
+        )
+    st.caption("Topics: " + " · ".join(bank["topics"][t]["name"] for t in practice_topics))
+    challenge_id = f"{job['id']}:{mode_key}"
+    questions = pick_daily_questions(bank, practice_topics, today, job_id=challenge_id, history=history)
 answered = answers_for_day(conn, today, challenge_id)
 done = [q for q in questions if q["id"] in answered]
 remaining = [q for q in questions if q["id"] not in answered]
@@ -158,6 +172,10 @@ if feedback:
         st.success(f"✅ Correct! +{XP_PER_CORRECT} XP")
     else:
         st.error(f"❌ Not quite. You chose {feedback['chosen']}; the answer is {correct_letter}.")
+    if mode_key == "aptitude":
+        seconds = feedback.get("seconds", 0)
+        pace = "✅ on pace" if seconds <= TARGET_SECONDS else "⚠️ slower than test pace"
+        st.caption(f"⏱️ Answered in {seconds} s (target: under {TARGET_SECONDS} s) · {pace}")
     st.info(f"**Answer:** {question['options'][question['answer']]}\n\n{question['explanation']}")
     topic = bank["topics"][question["topic"]]
     st.markdown(f"📚 Study more: [{topic['name']}]({topic['study_link']})")
@@ -172,6 +190,8 @@ if feedback:
 elif remaining:
     # Ask the next unanswered question
     question = remaining[0]
+    started = st.session_state.setdefault("started", {})
+    started.setdefault(question["id"], time.time())
     number = len(done) + 1
     st.subheader(f"Question {number} of {len(questions)}")
     st.progress(len(done) / len(questions))
@@ -192,7 +212,9 @@ elif remaining:
         else:
             correct = choice == question["answer"]
             record_answer(conn, today, challenge_id, question, correct)
+            seconds = time.time() - started.pop(question["id"], time.time())
             st.session_state["feedback"] = {
+                "seconds": round(seconds),
                 "challenge_id": challenge_id,
                 "question_id": question["id"],
                 "chosen": LETTERS[choice],
@@ -218,8 +240,7 @@ else:
         for q in missed:
             topic = bank["topics"][q["topic"]]
             st.markdown(f"- {q['question']} ([{topic['name']}]({topic['study_link']}))")
-    other = "behavioural" if mode_key == "technical" else "technical"
-    st.info(f"Come back tomorrow for a new set. Or switch to {other} questions above to keep going.")
+    st.info("Come back tomorrow for a new set. Or choose another kind of practice above to keep going.")
 
 conn.close()
 

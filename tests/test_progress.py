@@ -6,7 +6,7 @@ import pytest
 
 from progress import (
     answers_for_day, complete_challenge, connect, job_summary, level_for, question_history,
-    readiness, record_answer, streak, topic_stats, total_xp,
+    readiness, recent_accuracy, record_answer, streak, topic_stats, total_xp,
 )
 
 TODAY = date(2026, 10, 20)
@@ -130,3 +130,14 @@ def test_job_summary_counts_only_that_job(conn):
     summary = job_summary(conn, "job-1")
 
     assert summary == {"answered": 2, "correct": 1, "accuracy": 50, "challenges": 1, "xp": 30}
+
+
+def test_recent_accuracy_uses_only_the_latest_answers(conn):
+    record_answer(conn, TODAY, "aptitude", q("apt-1", "numerical"), False)
+    for n in range(3):
+        record_answer(conn, TODAY, "aptitude", q(f"apt-{n + 2}", "logical"), True)
+    record_answer(conn, TODAY, "job-1:technical", q("linux-01"), False)
+
+    assert recent_accuracy(conn, "aptitude", last=3) == 100
+    assert recent_accuracy(conn, "aptitude") == 75
+    assert recent_accuracy(conn, "nothing-yet") == 0

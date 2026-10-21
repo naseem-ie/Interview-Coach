@@ -166,6 +166,21 @@
         "demand planning"
       ],
       "study_link": "https://www.kinaxis.com/en/blog"
+    },
+    "numerical": {
+      "name": "Numerical reasoning",
+      "keywords": [],
+      "study_link": "https://www.assessmentday.co.uk/aptitudetests_numerical.htm"
+    },
+    "logical": {
+      "name": "Logical reasoning",
+      "keywords": [],
+      "study_link": "https://www.assessmentday.co.uk/aptitudetests_logical.htm"
+    },
+    "verbal": {
+      "name": "Verbal reasoning",
+      "keywords": [],
+      "study_link": "https://www.assessmentday.co.uk/aptitudetests_verbal.htm"
     }
   },
   "questions": [
@@ -1156,6 +1171,136 @@
       ],
       "answer": 1,
       "explanation": "Kinaxis is known for fast scenario analysis: planners test a disruption or demand change in a copy of the plan and compare outcomes without touching the live plan."
+    },
+    {
+      "id": "verbal-01",
+      "topic": "verbal",
+      "question": "Passage: \"The service desk moved to a new ticketing tool in March. Since then, average first-response time has fallen from 40 minutes to 25 minutes. Customer satisfaction scores have stayed the same.\" Statement: First-response time improved after the new tool was introduced.",
+      "options": [
+        "True",
+        "False",
+        "Cannot say",
+        "Partly true"
+      ],
+      "answer": 0,
+      "explanation": "The passage says response time fell from 40 to 25 minutes since the move, so the statement is directly supported: True. ('Partly true' is never an option in real tests; answers are True, False or Cannot say.)"
+    },
+    {
+      "id": "verbal-02",
+      "topic": "verbal",
+      "question": "Passage: \"The service desk moved to a new ticketing tool in March. Since then, average first-response time has fallen from 40 minutes to 25 minutes. Customer satisfaction scores have stayed the same.\" Statement: The new tool made customers happier.",
+      "options": [
+        "True",
+        "Cannot say",
+        "False",
+        "Partly true"
+      ],
+      "answer": 2,
+      "explanation": "The passage says satisfaction scores 'stayed the same', which contradicts customers becoming happier: False."
+    },
+    {
+      "id": "verbal-03",
+      "topic": "verbal",
+      "question": "Passage: \"The service desk moved to a new ticketing tool in March. Since then, average first-response time has fallen from 40 minutes to 25 minutes. Customer satisfaction scores have stayed the same.\" Statement: The new tool was cheaper than the old one.",
+      "options": [
+        "True",
+        "False",
+        "Partly true",
+        "Cannot say"
+      ],
+      "answer": 3,
+      "explanation": "Cost is never mentioned. When the passage gives no information either way, the answer is Cannot say. Do not use your own knowledge or assumptions."
+    },
+    {
+      "id": "verbal-04",
+      "topic": "verbal",
+      "question": "Choose the word closest in meaning to MITIGATE.",
+      "options": [
+        "Worsen",
+        "Reduce",
+        "Ignore",
+        "Report"
+      ],
+      "answer": 1,
+      "explanation": "To mitigate a risk or impact is to make it less severe, so 'reduce'. Common in incident and risk management language."
+    },
+    {
+      "id": "verbal-05",
+      "topic": "verbal",
+      "question": "Choose the word opposite in meaning to INTERMITTENT.",
+      "options": [
+        "Continuous",
+        "Occasional",
+        "Random",
+        "Delayed"
+      ],
+      "answer": 0,
+      "explanation": "Intermittent means stopping and starting (an intermittent fault comes and goes). The opposite is continuous."
+    },
+    {
+      "id": "verbal-06",
+      "topic": "verbal",
+      "question": "Complete the analogy. Server is to data centre as book is to ...",
+      "options": [
+        "Author",
+        "Page",
+        "Library",
+        "Reader"
+      ],
+      "answer": 2,
+      "explanation": "A server is kept and organised in a data centre; a book is kept and organised in a library."
+    },
+    {
+      "id": "verbal-07",
+      "topic": "verbal",
+      "question": "Which word does NOT belong with the others?",
+      "options": [
+        "Incident",
+        "Outage",
+        "Disruption",
+        "Upgrade"
+      ],
+      "answer": 3,
+      "explanation": "Incident, outage and disruption all describe unplanned service interruptions. An upgrade is a planned change."
+    },
+    {
+      "id": "verbal-08",
+      "topic": "verbal",
+      "question": "Choose the word that best completes the sentence: 'The fix was only a temporary ___ until the vendor released a permanent patch.'",
+      "options": [
+        "Workaround",
+        "Root cause",
+        "Escalation",
+        "Rollback"
+      ],
+      "answer": 0,
+      "explanation": "A workaround restores service temporarily while the permanent fix is prepared. The root cause is why it happened, not a fix."
+    },
+    {
+      "id": "verbal-09",
+      "topic": "verbal",
+      "question": "Passage: \"All P1 incidents must be reviewed within five working days. The login outage on Monday was a P1 incident.\" Statement: The login outage must be reviewed within five working days.",
+      "options": [
+        "Cannot say",
+        "True",
+        "False",
+        "Partly true"
+      ],
+      "answer": 1,
+      "explanation": "Both facts are given: all P1s must be reviewed within five days, and this outage was a P1. So it must be reviewed within five days: True."
+    },
+    {
+      "id": "verbal-10",
+      "topic": "verbal",
+      "question": "Choose the word closest in meaning to CONCISE.",
+      "options": [
+        "Detailed",
+        "Brief",
+        "Confusing",
+        "Formal"
+      ],
+      "answer": 1,
+      "explanation": "Concise means expressing a lot in few words: brief and to the point. Recruiters value concise incident updates."
     }
   ]
 }
