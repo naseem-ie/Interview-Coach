@@ -161,3 +161,65 @@ def test_recent_accuracy_includes_extra_practice_and_mock_answers(conn):
     record_answer(conn, TODAY, "aptitudeX", q("other", "logical"), False)
 
     assert recent_accuracy(conn, "aptitude") == 67
+
+
+# ---------- AI questions ----------
+
+from progress import ai_questions, report_ai_question, save_ai_questions
+
+
+def ai_q(question_id, skill="PowerShell basics"):
+    return {"id": question_id, "topic": "ai", "skill": skill, "question": "Q?",
+            "options": ["a", "b", "c", "d"], "answer": 0, "explanation": "E."}
+
+
+def test_ai_questions_are_saved_once_and_shared_by_skill(conn):
+    assert save_ai_questions(conn, TODAY, "job-1", "PowerShell basics", [ai_q("ai-1"), ai_q("ai-2")]) == 2
+    assert save_ai_questions(conn, TODAY, "job-1", "PowerShell basics", [ai_q("ai-1")]) == 0
+
+    # Another job with the same skill gap (any capitals) sees them too
+    assert [q["id"] for q in ai_questions(conn, ["powershell BASICS"], "job-2")] == ["ai-1", "ai-2"]
+    assert ai_questions(conn, ["Agile"], "job-2") == []
+
+
+def test_extra_topics_belong_to_the_job_that_added_them(conn):
+    save_ai_questions(conn, TODAY, "job-1", "SAP Ariba", [ai_q("ai-9", "SAP Ariba")])
+
+    assert len(ai_questions(conn, [], "job-1")) == 1
+    assert ai_questions(conn, [], "job-2") == []
+
+
+def test_reported_ai_questions_are_hidden(conn):
+    save_ai_questions(conn, TODAY, "job-1", "PowerShell basics", [ai_q("ai-1"), ai_q("ai-2")])
+    report_ai_question(conn, "ai-1")
+
+    assert [q["id"] for q in ai_questions(conn, ["PowerShell basics"], "job-1")] == ["ai-2"]
+
+
+def test_ai_practice_counts_towards_the_job(conn):
+    record_answer(conn, TODAY, "job-1:ai", ai_q("ai-1"), True)
+    assert job_summary(conn, "job-1")["correct"] == 1
+
+
+def test_ai_skill_stats_group_by_skill_and_use_the_latest_answer(conn):
+    pool = [ai_q("ai-1"), ai_q("ai-2"), ai_q("ai-3", "Agile")]
+    record_answer(conn, TODAY, "job-1:ai", ai_q("ai-1"), False)
+    record_answer(conn, TODAY, "job-1:ai", ai_q("ai-1"), True)
+
+    from progress import ai_skill_stats
+    stats = ai_skill_stats(conn, pool)
+
+    assert stats["PowerShell basics"]["total"] == 2
+    assert stats["PowerShell basics"]["correct"] == 1
+    assert stats["PowerShell basics"]["status"] == "Learning"
+    assert stats["Agile"]["status"] == "Not started"
+
+
+def test_technical_readiness_combines_bank_topics_and_ai_skills():
+    from progress import combined_readiness
+
+    bank = {"web": {"total": 8, "correct": 0}}
+    ai = {"Agile": {"total": 5, "correct": 4}, "ERP": {"total": 7, "correct": 6}}
+
+    assert combined_readiness(bank, ai) == 50  # 10 right of 20
+    assert combined_readiness({}, {}) == 0

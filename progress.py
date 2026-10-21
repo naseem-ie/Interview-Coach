@@ -1,5 +1,6 @@
 """Save and read your practice progress (answers, XP, streak, readiness) in SQLite."""
 
+import json
 import sqlite3
 from datetime import timedelta
 from pathlib import Path
@@ -46,8 +47,47 @@ def connect(path=DB_FILE):
             seconds INTEGER NOT NULL
         )"""
     )
+    conn.execute(
+        """CREATE TABLE IF NOT EXISTS ai_questions (
+            id TEXT PRIMARY KEY,
+            skill TEXT NOT NULL,
+            job_id TEXT NOT NULL,
+            day TEXT NOT NULL,
+            data TEXT NOT NULL,
+            reported INTEGER NOT NULL DEFAULT 0
+        )"""
+    )
     conn.commit()
     return conn
+
+
+def save_ai_questions(conn, day, job_id, skill, questions):
+    """Save AI-written questions for a skill. Returns how many were new."""
+    before = conn.total_changes
+    conn.executemany(
+        "INSERT OR IGNORE INTO ai_questions (id, skill, job_id, day, data) VALUES (?, ?, ?, ?, ?)",
+        [(q["id"], skill, job_id, day.isoformat(), json.dumps(q)) for q in questions],
+    )
+    conn.commit()
+    return conn.total_changes - before
+
+
+def ai_questions(conn, skills, job_id):
+    """Saved AI questions for these skills (any job) or added for this job. Reported ones are left out."""
+    lowered = [s.lower() for s in skills]
+    marks = ",".join("?" * len(lowered)) or "''"
+    rows = conn.execute(
+        f"SELECT data FROM ai_questions WHERE reported = 0 AND (LOWER(skill) IN ({marks}) OR job_id = ?) "
+        "ORDER BY day, id",
+        (*lowered, job_id),
+    )
+    return [json.loads(row[0]) for row in rows]
+
+
+def report_ai_question(conn, question_id):
+    """Hide an AI question you think is wrong. It is kept in the file but never shown again."""
+    conn.execute("UPDATE ai_questions SET reported = 1 WHERE id = ?", (question_id,))
+    conn.commit()
 
 
 def record_mock_test(conn, day, format_key, right, answered, total, seconds):
@@ -155,20 +195,41 @@ def topic_stats(conn, topic_ids, topic_sizes, pass_rate=0.8):
     stats = {}
     for topic in topic_ids:
         results = [correct for t, correct in latest.values() if t == topic]
-        total = topic_sizes.get(topic, 0)
-        answered, right = len(results), sum(results)
-        percent = round(100 * right / total) if total else 0
-        if answered == 0:
-            status = "Not started"
-        elif total and right / total >= pass_rate:
-            status = "Mastered"
-        else:
-            status = "Learning"
-        stats[topic] = {
-            "total": total, "answered": answered, "correct": right,
-            "percent": percent, "status": status,
-        }
+        stats[topic] = _stat(topic_sizes.get(topic, 0), len(results), sum(results), pass_rate)
     return stats
+
+
+def _stat(total, answered, right, pass_rate):
+    """Percent and status (Not started / Learning / Mastered) for a group of questions."""
+    percent = round(100 * right / total) if total else 0
+    if answered == 0:
+        status = "Not started"
+    elif total and right / total >= pass_rate:
+        status = "Mastered"
+    else:
+        status = "Learning"
+    return {"total": total, "answered": answered, "correct": right, "percent": percent, "status": status}
+
+
+def ai_skill_stats(conn, questions, pass_rate=0.8):
+    """Like topic_stats, but for AI questions grouped by skill: {skill: stats}."""
+    latest = _latest_answers(conn)
+    groups = {}
+    for q in questions:
+        group = groups.setdefault(q["skill"], [0, 0, 0])  # total, answered, right
+        group[0] += 1
+        if q["id"] in latest:
+            group[1] += 1
+            group[2] += latest[q["id"]][1]
+    return {skill: _stat(*group, pass_rate) for skill, group in groups.items()}
+
+
+def combined_readiness(*stat_groups):
+    """Percent right on the latest try across several stats dicts (bank topics and AI skills)."""
+    stats = [s for group in stat_groups for s in group.values()]
+    total = sum(s["total"] for s in stats)
+    right = sum(s["correct"] for s in stats)
+    return round(100 * right / total) if total else 0
 
 
 def readiness(conn, topic_ids, topic_sizes):

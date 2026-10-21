@@ -58,3 +58,19 @@ def test_topic_sizes_counts_questions_per_topic():
     bank = {"questions": [{"topic": "sql"}, {"topic": "sql"}, {"topic": "linux"}]}
 
     assert topic_sizes(bank) == {"sql": 2, "linux": 1}
+
+
+def test_skill_gap_items_split_on_semicolons_and_new_lines():
+    from quiz import skill_gap_items
+
+    assert skill_gap_items("SQL; PowerShell basics\nAgile ;  ") == ["SQL", "PowerShell basics", "Agile"]
+    assert skill_gap_items(None) == []
+
+
+def test_uncovered_gaps_are_the_ones_no_topic_matches():
+    from quiz import load_bank, uncovered_gaps
+
+    topics = load_bank()["topics"]
+    gaps = "SQL Server querying; PowerShell basics; PRINCE2 or Agile concepts; Zendesk"
+
+    assert uncovered_gaps(gaps, topics) == ["PowerShell basics", "PRINCE2 or Agile concepts"]

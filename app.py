@@ -8,16 +8,17 @@ import streamlit as st
 from notion_client import APIResponseError
 
 from aptitude import CHALLENGE_ID as APTITUDE_ID, TARGET_SECONDS, daily_aptitude
+from ai_practice import render_ai_practice
 from aptitude_page import render_extra, render_mock, render_tips, show_tip
 
 from notion_data import STATUSES, load_job_description, load_jobs, update_status
 from progress import (
-    XP_PER_CHALLENGE, XP_PER_CORRECT, XP_PER_LEVEL, answers_for_day, complete_challenge,
-    connect, job_summary, level_for, question_history, readiness, recent_accuracy, record_answer,
+    XP_PER_CHALLENGE, XP_PER_CORRECT, XP_PER_LEVEL, ai_questions, ai_skill_stats, answers_for_day,
+    combined_readiness, complete_challenge, connect, job_summary, level_for, question_history, readiness, recent_accuracy, record_answer,
     streak,
     topic_stats, total_xp,
 )
-from quiz import load_bank, pick_daily_questions, split_topics, topic_sizes, topics_for_job
+from quiz import load_bank, pick_daily_questions, split_topics, topic_sizes, topics_for_job, uncovered_gaps
 
 st.set_page_config(page_title="Interview Coach", page_icon="🎯")
 CLOSED = {"No reply - inactive", "Rejected", "Withdrawn"}
@@ -74,6 +75,8 @@ conn = connect()
 
 topic_ids = topics_for_job(job["skill_gaps"], bank["topics"])
 technical, behavioural = split_topics(topic_ids)
+gaps = uncovered_gaps(job["skill_gaps"], bank["topics"])
+ai_pool = ai_questions(conn, gaps, job["id"])
 
 # ---------- Header: this job ----------
 st.title(job["company"])
@@ -84,14 +87,17 @@ summary = job_summary(conn, job["id"])
 
 st.markdown("#### 🎯 Readiness for this job")
 col1, col2, col3 = st.columns(3)
-col1.metric("🛠️ Technical", f"{readiness(conn, technical, sizes)}%")
+technical_stats = topic_stats(conn, technical, sizes)
+ai_stats = ai_skill_stats(conn, ai_pool)
+col1.metric("🛠️ Technical", f"{combined_readiness(technical_stats, ai_stats)}%")
 col2.metric("🗣️ Behavioural", f"{readiness(conn, behavioural, sizes)}%")
 col3.metric(
     "✍️ All answers for this job",
     f"{summary['correct']} of {summary['answered']} correct",
 )
 st.caption(
-    f"Readiness = share of this job's topic questions you have got right on your latest try. "
+    f"Readiness = share of this job's questions (question bank + 🤖 AI practice) you have got "
+    f"right on your latest try. "
     f"You have earned {summary['xp']} XP and finished {summary['challenges']} "
     f"challenge(s) for this job."
 )
@@ -104,6 +110,12 @@ with st.expander("📊 Topic breakdown: what to work on"):
         st.write(
             f"{icons[s['status']]} **{name}**: {s['percent']}% "
             f"({s['correct']} of {s['total']} questions right) · {s['status']}"
+        )
+        st.progress(s["percent"] / 100)
+    for skill, s in ai_stats.items():
+        st.write(
+            f"{icons[s['status']]} 🤖 **{skill}**: {s['percent']}% "
+            f"({s['correct']} of {s['total']} AI questions right) · {s['status']}"
         )
         st.progress(s["percent"] / 100)
     st.caption("A topic is mastered once you have got 80% of its questions right on your latest try.")
@@ -164,6 +176,18 @@ else:
             "topics (ITIL, Linux, SQL). Add skill gaps in Notion to tailor them."
         )
     st.caption("Topics: " + " · ".join(bank["topics"][t]["name"] for t in practice_topics))
+    if mode_key == "technical":
+        if gaps:
+            st.caption("⚠️ Not in the question bank yet: " + " · ".join(gaps))
+        technical_activity = st.radio(
+            "Technical practice",
+            ["📅 Daily 5", "🤖 AI practice"],
+            horizontal=True,
+            label_visibility="collapsed",
+        )
+        if technical_activity == "🤖 AI practice":
+            render_ai_practice(conn, today, job, gaps)
+            run_daily = False
     challenge_id = f"{job['id']}:{mode_key}"
     questions = pick_daily_questions(bank, practice_topics, today, job_id=challenge_id, history=history)
 if run_daily:

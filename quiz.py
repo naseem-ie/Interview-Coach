@@ -72,3 +72,20 @@ def topic_sizes(bank):
     for question in bank["questions"]:
         sizes[question["topic"]] = sizes.get(question["topic"], 0) + 1
     return sizes
+
+
+def skill_gap_items(skill_gaps):
+    """Split the Notion 'Skill gaps' text into separate items (separated by ; or new lines)."""
+    parts = re.split(r"[;\n]", skill_gaps or "")
+    return [part.strip(" .-•") for part in parts if part.strip(" .-•")]
+
+
+def uncovered_gaps(skill_gaps, topics):
+    """Skill gaps that no topic in the question bank covers (so the AI can write questions)."""
+    return [
+        item
+        for item in skill_gap_items(skill_gaps)
+        if not any(
+            _mentions(item.lower(), keyword) for topic in topics.values() for keyword in topic["keywords"]
+        )
+    ]
