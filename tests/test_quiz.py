@@ -1,6 +1,6 @@
 """Tests for the question bank and topic matching."""
 
-from quiz import load_bank, split_topics, topics_for_job
+from quiz import load_bank, split_topics, topic_sizes, topics_for_job
 
 
 def test_question_bank_is_valid():
@@ -52,3 +52,9 @@ def test_split_topics_uses_core_topics_when_no_skill_gaps():
     technical, _ = split_topics(["behavioural"])
 
     assert technical == ["itil", "linux", "sql"]
+
+
+def test_topic_sizes_counts_questions_per_topic():
+    bank = {"questions": [{"topic": "sql"}, {"topic": "sql"}, {"topic": "linux"}]}
+
+    assert topic_sizes(bank) == {"sql": 2, "linux": 1}

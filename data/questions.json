@@ -3,53 +3,169 @@
   "topics": {
     "linux": {
       "name": "Linux and Bash",
-      "keywords": ["linux", "bash", "unix", "shell", "cron", "batch", "control-m"],
+      "keywords": [
+        "linux",
+        "bash",
+        "unix",
+        "shell",
+        "cron",
+        "batch",
+        "control-m"
+      ],
       "study_link": "https://linuxjourney.com/"
     },
     "sql": {
       "name": "SQL and databases",
-      "keywords": ["sql", "oracle", "database", "query", "sql server"],
+      "keywords": [
+        "sql",
+        "oracle",
+        "database",
+        "query",
+        "sql server"
+      ],
       "study_link": "https://sqlbolt.com/"
     },
     "python": {
       "name": "Python scripting",
-      "keywords": ["python", "scripting", "automation"],
+      "keywords": [
+        "python",
+        "scripting"
+      ],
       "study_link": "https://docs.python.org/3/tutorial/"
     },
     "docker": {
       "name": "Docker and containers",
-      "keywords": ["docker", "container"],
+      "keywords": [
+        "docker",
+        "container"
+      ],
       "study_link": "https://docs.docker.com/get-started/"
     },
     "kubernetes": {
       "name": "Kubernetes",
-      "keywords": ["kubernetes", "k8s"],
+      "keywords": [
+        "kubernetes",
+        "k8s"
+      ],
       "study_link": "https://kubernetes.io/docs/tutorials/kubernetes-basics/"
     },
     "aws": {
       "name": "AWS, high availability and disaster recovery",
-      "keywords": ["aws", "cloud", "high availability", "disaster recovery", "azure"],
+      "keywords": [
+        "aws",
+        "cloud",
+        "high availability",
+        "disaster recovery",
+        "azure"
+      ],
       "study_link": "https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/welcome.html"
     },
     "monitoring": {
       "name": "Monitoring and SRE",
-      "keywords": ["dynatrace", "apm", "monitoring", "observability", "capacity", "sre", "reliability"],
+      "keywords": [
+        "dynatrace",
+        "apm",
+        "monitoring",
+        "observability",
+        "capacity",
+        "sre",
+        "reliability"
+      ],
       "study_link": "https://sre.google/sre-book/monitoring-distributed-systems/"
     },
     "itil": {
       "name": "ITIL and incident management",
-      "keywords": ["itil", "incident", "problem", "change", "service desk", "sla", "zendesk", "servicenow"],
+      "keywords": [
+        "itil",
+        "incident",
+        "problem",
+        "change",
+        "service desk",
+        "sla",
+        "zendesk",
+        "servicenow"
+      ],
       "study_link": "https://www.atlassian.com/itsm/incident-management"
     },
     "cicd": {
       "name": "CI/CD pipelines",
-      "keywords": ["ci/cd", "ci", "cd", "jenkins", "github actions", "pipeline", "devops"],
+      "keywords": [
+        "ci/cd",
+        "ci",
+        "cd",
+        "jenkins",
+        "github actions",
+        "pipeline",
+        "devops"
+      ],
       "study_link": "https://docs.github.com/en/actions/about-github-actions/understanding-github-actions"
     },
     "behavioural": {
       "name": "Behavioural interviews",
-      "keywords": ["behavioural", "behavioral", "star", "values", "culture"],
+      "keywords": [
+        "behavioural",
+        "behavioral",
+        "star",
+        "values",
+        "culture"
+      ],
       "study_link": "https://www.themuse.com/advice/star-interview-method"
+    },
+    "web": {
+      "name": "APIs, SSO and identity",
+      "keywords": [
+        "rest",
+        "soap",
+        "api",
+        "apis",
+        "web services",
+        "sso",
+        "saml",
+        "oauth",
+        "ldap",
+        "active directory",
+        "authentication",
+        "identity",
+        "integration",
+        "integrations",
+        "json",
+        "xml"
+      ],
+      "study_link": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview"
+    },
+    "networking": {
+      "name": "Networking basics",
+      "keywords": [
+        "networking",
+        "network",
+        "dns",
+        "tcp",
+        "tls",
+        "firewall",
+        "load balancer"
+      ],
+      "study_link": "https://www.cloudflare.com/learning/"
+    },
+    "javascript": {
+      "name": "JavaScript basics",
+      "keywords": [
+        "javascript",
+        "js",
+        "glide"
+      ],
+      "study_link": "https://developer.mozilla.org/en-US/docs/Learn/JavaScript/First_steps"
+    },
+    "supplychain": {
+      "name": "Supply chain planning",
+      "keywords": [
+        "supply chain",
+        "kinaxis",
+        "rapidresponse",
+        "maestro",
+        "s&op",
+        "demand planning"
+      ],
+      "study_link": "https://www.kinaxis.com/en/blog"
     }
   },
   "questions": [
@@ -57,7 +173,12 @@
       "id": "linux-01",
       "topic": "linux",
       "question": "Which command shows the last 100 lines of app.log and keeps printing new lines as they are written?",
-      "options": ["tail -n 100 -f app.log", "head -n 100 app.log", "cat app.log | less", "grep -100 app.log"],
+      "options": [
+        "tail -n 100 -f app.log",
+        "head -n 100 app.log",
+        "cat app.log | less",
+        "grep -100 app.log"
+      ],
       "answer": 0,
       "explanation": "tail shows the end of a file, -n 100 sets the number of lines, and -f (follow) keeps the file open and prints new lines live. It is the standard way to watch a log during an incident."
     },
@@ -65,7 +186,12 @@
       "id": "linux-02",
       "topic": "linux",
       "question": "You need every line containing 'error' (any capitalisation) across all .log files in the current folder. Which command?",
-      "options": ["find -i error *.log", "grep -i \"error\" *.log", "ls *.log | error", "awk -i error *.log"],
+      "options": [
+        "find -i error *.log",
+        "grep -i \"error\" *.log",
+        "ls *.log | error",
+        "awk -i error *.log"
+      ],
       "answer": 1,
       "explanation": "grep searches file contents for a pattern. -i makes it case-insensitive, so ERROR, Error and error all match. Add -n to show line numbers or -c to count matches per file."
     },
@@ -73,7 +199,12 @@
       "id": "linux-03",
       "topic": "linux",
       "question": "A server is slow and you suspect one process is using all the CPU. Which command shows live CPU usage per process?",
-      "options": ["df -h", "du -sh *", "top", "chmod 755"],
+      "options": [
+        "df -h",
+        "du -sh *",
+        "top",
+        "chmod 755"
+      ],
       "answer": 2,
       "explanation": "top (or htop if installed) shows running processes sorted by CPU, refreshing every few seconds. df and du are about disk space, and chmod changes permissions."
     },
@@ -81,7 +212,12 @@
       "id": "linux-04",
       "topic": "linux",
       "question": "A 'disk full' alert fires. Which command shows how much free space each filesystem has?",
-      "options": ["du -sh /var/log", "df -h", "free -h", "ps aux"],
+      "options": [
+        "du -sh /var/log",
+        "df -h",
+        "free -h",
+        "ps aux"
+      ],
       "answer": 1,
       "explanation": "df -h lists each mounted filesystem with size, used and available space in human-readable units. Once you know which one is full, du -sh on its folders finds what is taking the space. free -h is about memory, not disk."
     },
@@ -89,7 +225,12 @@
       "id": "linux-05",
       "topic": "linux",
       "question": "A cron job is scheduled as: 30 2 * * 1-5 /opt/scripts/backup.sh. When does it run?",
-      "options": ["Every 30 minutes on weekdays", "At 02:30 every Monday to Friday", "At 02:30 on the 1st to 5th of every month", "At 30:02 every day"],
+      "options": [
+        "Every 30 minutes on weekdays",
+        "At 02:30 every Monday to Friday",
+        "At 02:30 on the 1st to 5th of every month",
+        "At 30:02 every day"
+      ],
       "answer": 1,
       "explanation": "The five cron fields are minute, hour, day of month, month and day of week. 30 2 means 02:30, the two stars mean any day and any month, and 1-5 in the last field means Monday to Friday. Enterprise schedulers like Control-M use the same idea with more features."
     },
@@ -97,7 +238,12 @@
       "id": "linux-06",
       "topic": "linux",
       "question": "What does chmod 755 deploy.sh give the file?",
-      "options": ["Everyone can read, write and run it", "Only the owner can read it", "Nobody can run it", "Owner can read, write and run; group and others can read and run"],
+      "options": [
+        "Everyone can read, write and run it",
+        "Only the owner can read it",
+        "Nobody can run it",
+        "Owner can read, write and run; group and others can read and run"
+      ],
       "answer": 3,
       "explanation": "Each digit is owner, group, others. 7 = read (4) + write (2) + execute (1); 5 = read (4) + execute (1). So the owner has full control and everyone else can read and run, but not change, the script."
     },
@@ -105,7 +251,12 @@
       "id": "sql-01",
       "topic": "sql",
       "question": "Which query counts how many tickets are in each status?",
-      "options": ["SELECT status, COUNT(*) FROM tickets GROUP BY status;", "SELECT COUNT(status) FROM tickets;", "SELECT status FROM tickets ORDER BY COUNT(*);", "SELECT DISTINCT COUNT(*) FROM tickets WHERE status;"],
+      "options": [
+        "SELECT status, COUNT(*) FROM tickets GROUP BY status;",
+        "SELECT COUNT(status) FROM tickets;",
+        "SELECT status FROM tickets ORDER BY COUNT(*);",
+        "SELECT DISTINCT COUNT(*) FROM tickets WHERE status;"
+      ],
       "answer": 0,
       "explanation": "GROUP BY status puts rows with the same status together, and COUNT(*) counts the rows in each group. The second option returns one total, not a count per status."
     },
@@ -113,7 +264,12 @@
       "id": "sql-02",
       "topic": "sql",
       "question": "What is the difference between an INNER JOIN and a LEFT JOIN?",
-      "options": ["There is no difference", "INNER JOIN is faster but returns the same rows", "INNER JOIN keeps only rows that match in both tables; LEFT JOIN keeps every row from the left table, with NULLs where there is no match", "LEFT JOIN only works on numeric columns"],
+      "options": [
+        "There is no difference",
+        "INNER JOIN is faster but returns the same rows",
+        "INNER JOIN keeps only rows that match in both tables; LEFT JOIN keeps every row from the left table, with NULLs where there is no match",
+        "LEFT JOIN only works on numeric columns"
+      ],
       "answer": 2,
       "explanation": "Use INNER JOIN when you only want matched pairs, such as orders with their customers. Use LEFT JOIN when you need every row from the first table even if nothing matches, such as all customers including those with no orders."
     },
@@ -121,7 +277,12 @@
       "id": "sql-03",
       "topic": "sql",
       "question": "When do you use HAVING instead of WHERE?",
-      "options": ["HAVING filters groups after GROUP BY, for example HAVING COUNT(*) > 10", "HAVING is just an older name for WHERE", "HAVING sorts the results", "HAVING is only used with JOINs"],
+      "options": [
+        "HAVING filters groups after GROUP BY, for example HAVING COUNT(*) > 10",
+        "HAVING is just an older name for WHERE",
+        "HAVING sorts the results",
+        "HAVING is only used with JOINs"
+      ],
       "answer": 0,
       "explanation": "WHERE filters individual rows before grouping. HAVING filters the groups after aggregation. Example: customers with more than 10 open tickets needs GROUP BY customer_id HAVING COUNT(*) > 10."
     },
@@ -129,7 +290,12 @@
       "id": "sql-04",
       "topic": "sql",
       "question": "Which query finds customers who have never placed an order?",
-      "options": ["SELECT * FROM customers WHERE orders = 0;", "SELECT c.* FROM customers c INNER JOIN orders o ON o.customer_id = c.id;", "SELECT * FROM orders WHERE customer_id IS NOT NULL;", "SELECT c.* FROM customers c LEFT JOIN orders o ON o.customer_id = c.id WHERE o.id IS NULL;"],
+      "options": [
+        "SELECT * FROM customers WHERE orders = 0;",
+        "SELECT c.* FROM customers c INNER JOIN orders o ON o.customer_id = c.id;",
+        "SELECT * FROM orders WHERE customer_id IS NOT NULL;",
+        "SELECT c.* FROM customers c LEFT JOIN orders o ON o.customer_id = c.id WHERE o.id IS NULL;"
+      ],
       "answer": 3,
       "explanation": "The LEFT JOIN keeps every customer. Customers without orders get NULL in the order columns, so WHERE o.id IS NULL leaves only those. This anti-join pattern comes up often in support investigations."
     },
@@ -137,7 +303,12 @@
       "id": "sql-05",
       "topic": "sql",
       "question": "Why does WHERE closed_at = NULL return no rows, even when some tickets are still open?",
-      "options": ["The table is empty", "NULL means unknown, so comparing with = never returns true; use IS NULL instead", "You must write 'NULL' in quotes", "closed_at needs an index first"],
+      "options": [
+        "The table is empty",
+        "NULL means unknown, so comparing with = never returns true; use IS NULL instead",
+        "You must write 'NULL' in quotes",
+        "closed_at needs an index first"
+      ],
       "answer": 1,
       "explanation": "In SQL, NULL is not a value but the absence of one, so any comparison with = gives unknown, not true. Always use IS NULL or IS NOT NULL."
     },
@@ -145,7 +316,12 @@
       "id": "sql-06",
       "topic": "sql",
       "question": "A report query filtering a 50-million-row table by created_at has become very slow. What is the most likely first fix?",
-      "options": ["Restart the database every morning", "Add more columns to the SELECT", "Check the execution plan and add an index on created_at if the query is doing a full table scan", "Replace WHERE with HAVING"],
+      "options": [
+        "Restart the database every morning",
+        "Add more columns to the SELECT",
+        "Check the execution plan and add an index on created_at if the query is doing a full table scan",
+        "Replace WHERE with HAVING"
+      ],
       "answer": 2,
       "explanation": "Without an index, the database reads every row (a full table scan). Checking the plan (EXPLAIN in most databases) confirms this, and an index on the filtered column lets it jump straight to the matching rows."
     },
@@ -153,7 +329,12 @@
       "id": "python-01",
       "topic": "python",
       "question": "Why is 'with open(\"app.log\") as f:' preferred over plain f = open(\"app.log\")?",
-      "options": ["It reads the file faster", "It closes the file automatically, even if an error happens", "It is the only way to read text files", "It encrypts the file"],
+      "options": [
+        "It reads the file faster",
+        "It closes the file automatically, even if an error happens",
+        "It is the only way to read text files",
+        "It encrypts the file"
+      ],
       "answer": 1,
       "explanation": "The with statement is a context manager. When the indented block ends, normally or because of an error, the file is closed for you. Forgetting to close files can lock them or leak resources in long-running scripts."
     },
@@ -161,7 +342,12 @@
       "id": "python-02",
       "topic": "python",
       "question": "What does [x * 2 for x in range(3)] produce?",
-      "options": ["[2, 4, 6]", "[0, 1, 2]", "[0, 2, 4]", "6"],
+      "options": [
+        "[2, 4, 6]",
+        "[0, 1, 2]",
+        "[0, 2, 4]",
+        "6"
+      ],
       "answer": 2,
       "explanation": "range(3) gives 0, 1 and 2. The list comprehension doubles each one, giving [0, 2, 4]. This is the same pattern used in notion_data.py to turn every Notion page into a job."
     },
@@ -169,7 +355,12 @@
       "id": "python-03",
       "topic": "python",
       "question": "What is the main purpose of try / except in a Python script?",
-      "options": ["To make code run faster", "To repeat code several times", "To define a new function", "To handle an error gracefully instead of letting the script crash"],
+      "options": [
+        "To make code run faster",
+        "To repeat code several times",
+        "To define a new function",
+        "To handle an error gracefully instead of letting the script crash"
+      ],
       "answer": 3,
       "explanation": "Code inside try runs normally. If an error is raised, Python jumps to the matching except block, where you can log it, retry, or show a friendly message. app.py uses this to show a clear error if Notion cannot be reached."
     },
@@ -177,7 +368,12 @@
       "id": "python-04",
       "topic": "python",
       "question": "Which is the simplest way to count how many times each error code appears in a list of codes?",
-      "options": ["collections.Counter(codes)", "len(codes)", "sorted(codes)", "set(codes)"],
+      "options": [
+        "collections.Counter(codes)",
+        "len(codes)",
+        "sorted(codes)",
+        "set(codes)"
+      ],
       "answer": 0,
       "explanation": "Counter builds a dictionary-like object of item to count, for example {'E500': 12, 'E404': 3}, and .most_common(5) gives the top five. len counts all items and set removes duplicates."
     },
@@ -185,7 +381,12 @@
       "id": "python-05",
       "topic": "python",
       "question": "What is the difference between os.getenv(\"TOKEN\") and os.environ[\"TOKEN\"] when TOKEN is not set?",
-      "options": ["Both return an empty string", "os.getenv returns None; os.environ[...] raises a KeyError", "Both crash the script", "os.getenv crashes; os.environ returns None"],
+      "options": [
+        "Both return an empty string",
+        "os.getenv returns None; os.environ[...] raises a KeyError",
+        "Both crash the script",
+        "os.getenv crashes; os.environ returns None"
+      ],
       "answer": 1,
       "explanation": "getenv is the gentle option: it returns None (or a default you pass in), so you can check for it and show a clear message. Square brackets raise KeyError, which is useful when the script must not continue without the value."
     },
@@ -193,7 +394,12 @@
       "id": "docker-01",
       "topic": "docker",
       "question": "What is the difference between a Docker image and a container?",
-      "options": ["They are the same thing", "A container is a template; an image is the running copy", "An image is a read-only template; a container is a running instance created from it", "Images are only used on Windows"],
+      "options": [
+        "They are the same thing",
+        "A container is a template; an image is the running copy",
+        "An image is a read-only template; a container is a running instance created from it",
+        "Images are only used on Windows"
+      ],
       "answer": 2,
       "explanation": "Think of the image as a recipe or class, and the container as the dish or object. You can start many containers from one image, and each one runs independently."
     },
@@ -201,7 +407,12 @@
       "id": "docker-02",
       "topic": "docker",
       "question": "A container keeps stopping right after it starts. Which command shows what it printed before it stopped?",
-      "options": ["docker logs <container>", "docker images", "docker pull <image>", "docker network ls"],
+      "options": [
+        "docker logs <container>",
+        "docker images",
+        "docker pull <image>",
+        "docker network ls"
+      ],
       "answer": 0,
       "explanation": "docker logs shows the container's stdout and stderr, even for a stopped container. Use docker ps -a to find the container ID first, since plain docker ps only lists running containers."
     },
@@ -209,7 +420,12 @@
       "id": "docker-03",
       "topic": "docker",
       "question": "Data written inside a container disappears when the container is removed. How do you keep it?",
-      "options": ["Use a bigger image", "Run the container as root", "Use docker commit every hour", "Mount a volume (or bind mount) for the data folder"],
+      "options": [
+        "Use a bigger image",
+        "Run the container as root",
+        "Use docker commit every hour",
+        "Mount a volume (or bind mount) for the data folder"
+      ],
       "answer": 3,
       "explanation": "A container's own filesystem is temporary. A volume lives outside the container, so the data survives restarts, upgrades and removal. Databases in containers should always use a volume."
     },
@@ -217,7 +433,12 @@
       "id": "docker-04",
       "topic": "docker",
       "question": "In a Dockerfile, what does the CMD instruction do?",
-      "options": ["Copies files into the image", "Sets the default command that runs when a container starts", "Installs packages during the build", "Opens a port on the host"],
+      "options": [
+        "Copies files into the image",
+        "Sets the default command that runs when a container starts",
+        "Installs packages during the build",
+        "Opens a port on the host"
+      ],
       "answer": 1,
       "explanation": "CMD sets what the container runs by default, such as CMD [\"streamlit\", \"run\", \"app.py\"]. RUN executes during the build (for example installing packages), and COPY adds files."
     },
@@ -225,7 +446,12 @@
       "id": "docker-05",
       "topic": "docker",
       "question": "Which command lists all containers, including ones that have stopped?",
-      "options": ["docker ps -a", "docker ps", "docker images", "docker stop"],
+      "options": [
+        "docker ps -a",
+        "docker ps",
+        "docker images",
+        "docker stop"
+      ],
       "answer": 0,
       "explanation": "docker ps shows only running containers. Adding -a (all) includes stopped and exited ones, which is usually where you find the container that crashed."
     },
@@ -233,7 +459,12 @@
       "id": "k8s-01",
       "topic": "kubernetes",
       "question": "What is a Pod in Kubernetes?",
-      "options": ["A physical server in the cluster", "A type of load balancer", "The smallest deployable unit: one or more containers that share network and storage", "A backup of the cluster"],
+      "options": [
+        "A physical server in the cluster",
+        "A type of load balancer",
+        "The smallest deployable unit: one or more containers that share network and storage",
+        "A backup of the cluster"
+      ],
       "answer": 2,
       "explanation": "Kubernetes does not run containers directly; it runs Pods. Most Pods hold one container, sometimes with a small helper container alongside it."
     },
@@ -241,7 +472,12 @@
       "id": "k8s-02",
       "topic": "kubernetes",
       "question": "A Pod is in CrashLoopBackOff. What is a good first command to find out why?",
-      "options": ["kubectl delete namespace default", "kubectl logs <pod> --previous", "kubectl scale --replicas=0", "kubectl get nodes"],
+      "options": [
+        "kubectl delete namespace default",
+        "kubectl logs <pod> --previous",
+        "kubectl scale --replicas=0",
+        "kubectl get nodes"
+      ],
       "answer": 1,
       "explanation": "CrashLoopBackOff means the container keeps starting and crashing. logs --previous shows the output of the last crashed run, and kubectl describe pod shows events such as failed probes or missing config."
     },
@@ -249,7 +485,12 @@
       "id": "k8s-03",
       "topic": "kubernetes",
       "question": "What does a Deployment do?",
-      "options": ["Keeps the desired number of Pod replicas running and handles rolling updates", "Stores secrets", "Gives Pods a public DNS name", "Monitors CPU usage"],
+      "options": [
+        "Keeps the desired number of Pod replicas running and handles rolling updates",
+        "Stores secrets",
+        "Gives Pods a public DNS name",
+        "Monitors CPU usage"
+      ],
       "answer": 0,
       "explanation": "You declare, for example, 3 replicas of version 2. The Deployment creates them, replaces any that die, and swaps old Pods for new ones gradually during an update, with the option to roll back."
     },
@@ -257,7 +498,12 @@
       "id": "k8s-04",
       "topic": "kubernetes",
       "question": "Pods get new IP addresses whenever they restart. What gives other apps a stable address to reach them?",
-      "options": ["A ConfigMap", "A Node", "A PersistentVolume", "A Service"],
+      "options": [
+        "A ConfigMap",
+        "A Node",
+        "A PersistentVolume",
+        "A Service"
+      ],
       "answer": 3,
       "explanation": "A Service gives a fixed name and IP and load-balances traffic across all the Pods that match its label selector, however often those Pods are replaced."
     },
@@ -265,7 +511,12 @@
       "id": "k8s-05",
       "topic": "kubernetes",
       "question": "What happens when a readiness probe fails, compared with a liveness probe?",
-      "options": ["Both delete the Pod permanently", "Readiness: the Pod stops receiving traffic until it recovers. Liveness: the container is restarted", "Readiness restarts the node; liveness does nothing", "There is no difference"],
+      "options": [
+        "Both delete the Pod permanently",
+        "Readiness: the Pod stops receiving traffic until it recovers. Liveness: the container is restarted",
+        "Readiness restarts the node; liveness does nothing",
+        "There is no difference"
+      ],
       "answer": 1,
       "explanation": "Readiness answers 'can this Pod serve traffic right now?' Liveness answers 'is this container stuck and in need of a restart?' Mixing them up can cause restart loops during slow start-ups."
     },
@@ -273,7 +524,12 @@
       "id": "aws-01",
       "topic": "aws",
       "question": "What does running a database 'Multi-AZ' on AWS protect you from?",
-      "options": ["The failure of a single Availability Zone (data centre)", "Bad SQL queries", "High monthly bills", "Users entering wrong data"],
+      "options": [
+        "The failure of a single Availability Zone (data centre)",
+        "Bad SQL queries",
+        "High monthly bills",
+        "Users entering wrong data"
+      ],
       "answer": 0,
       "explanation": "An Availability Zone is one or more separate data centres in a region. Multi-AZ keeps a standby copy in another zone and fails over automatically if the primary zone has a problem."
     },
@@ -281,7 +537,12 @@
       "id": "aws-02",
       "topic": "aws",
       "question": "What is the difference between RTO and RPO?",
-      "options": ["They are the same metric", "RTO is about cost; RPO is about speed", "RTO is how long you can be down before service is restored; RPO is how much data (in time) you can afford to lose", "RPO only applies to on-premise systems"],
+      "options": [
+        "They are the same metric",
+        "RTO is about cost; RPO is about speed",
+        "RTO is how long you can be down before service is restored; RPO is how much data (in time) you can afford to lose",
+        "RPO only applies to on-premise systems"
+      ],
       "answer": 2,
       "explanation": "Example: RTO of 1 hour means service must be back within an hour. RPO of 15 minutes means backups or replication must be no more than 15 minutes old. Both drive the choice of disaster recovery design."
     },
@@ -289,7 +550,12 @@
       "id": "aws-03",
       "topic": "aws",
       "question": "Which disaster recovery approach is cheapest but slowest to recover?",
-      "options": ["Multi-site active/active", "Warm standby", "Pilot light", "Backup and restore"],
+      "options": [
+        "Multi-site active/active",
+        "Warm standby",
+        "Pilot light",
+        "Backup and restore"
+      ],
       "answer": 3,
       "explanation": "From cheapest and slowest to most expensive and fastest: backup and restore, pilot light (core pieces always on), warm standby (a scaled-down copy running), multi-site active/active (full copies serving traffic)."
     },
@@ -297,7 +563,12 @@
       "id": "aws-04",
       "topic": "aws",
       "question": "Which AWS service do you use for metrics, logs and alarms on your resources?",
-      "options": ["Amazon S3", "Amazon CloudWatch", "AWS IAM", "Amazon Route 53"],
+      "options": [
+        "Amazon S3",
+        "Amazon CloudWatch",
+        "AWS IAM",
+        "Amazon Route 53"
+      ],
       "answer": 1,
       "explanation": "CloudWatch collects metrics (CPU, latency, errors), stores logs, and triggers alarms, for example notifying on-call when error rate goes above a threshold."
     },
@@ -305,7 +576,12 @@
       "id": "aws-05",
       "topic": "aws",
       "question": "What does an Auto Scaling group do?",
-      "options": ["Adds or removes EC2 instances based on demand and replaces unhealthy ones", "Backs up databases nightly", "Encrypts S3 buckets", "Creates IAM users"],
+      "options": [
+        "Adds or removes EC2 instances based on demand and replaces unhealthy ones",
+        "Backs up databases nightly",
+        "Encrypts S3 buckets",
+        "Creates IAM users"
+      ],
       "answer": 0,
       "explanation": "It keeps the number of instances between a minimum and maximum, scaling out under load and back in when quiet, and swaps out instances that fail health checks. That is both resilience and cost control."
     },
@@ -313,7 +589,12 @@
       "id": "mon-01",
       "topic": "monitoring",
       "question": "What are Google SRE's four golden signals?",
-      "options": ["CPU, memory, disk, network", "Uptime, downtime, MTTR, MTBF", "Latency, traffic, errors, saturation", "Logs, metrics, traces, alerts"],
+      "options": [
+        "CPU, memory, disk, network",
+        "Uptime, downtime, MTTR, MTBF",
+        "Latency, traffic, errors, saturation",
+        "Logs, metrics, traces, alerts"
+      ],
       "answer": 2,
       "explanation": "Latency (how long requests take), traffic (how much demand), errors (how many fail) and saturation (how full the system is). If you can only monitor four things for a user-facing service, monitor these."
     },
@@ -321,7 +602,12 @@
       "id": "mon-02",
       "topic": "monitoring",
       "question": "How do SLI, SLO and SLA relate?",
-      "options": ["They are three names for uptime", "SLI is the measurement, SLO is the internal target, SLA is the contract with customers (usually with penalties)", "SLA is internal, SLO is public", "SLI is only used for databases"],
+      "options": [
+        "They are three names for uptime",
+        "SLI is the measurement, SLO is the internal target, SLA is the contract with customers (usually with penalties)",
+        "SLA is internal, SLO is public",
+        "SLI is only used for databases"
+      ],
       "answer": 1,
       "explanation": "Example: SLI = percentage of requests answered in under 300 ms. SLO = 99.9% of them each month. SLA = the promise to customers, often set looser than the SLO so the team has a safety margin."
     },
@@ -329,7 +615,12 @@
       "id": "mon-03",
       "topic": "monitoring",
       "question": "A service has a 99.9% monthly availability target. Roughly how much downtime does that allow in a 30-day month?",
-      "options": ["About 4 hours", "About 7 minutes", "About 43 minutes", "Zero minutes"],
+      "options": [
+        "About 4 hours",
+        "About 7 minutes",
+        "About 43 minutes",
+        "Zero minutes"
+      ],
       "answer": 2,
       "explanation": "30 days is 43,200 minutes, and 0.1% of that is 43.2 minutes. That allowance is the error budget: while budget remains, teams can ship changes; when it is used up, they focus on reliability."
     },
@@ -337,7 +628,12 @@
       "id": "mon-04",
       "topic": "monitoring",
       "question": "What is the main advantage of an APM tool such as Dynatrace over basic server monitoring?",
-      "options": ["It traces requests across services, so you can see which component or database call is slow", "It replaces the need for logs completely", "It only monitors disk space", "It is always free"],
+      "options": [
+        "It traces requests across services, so you can see which component or database call is slow",
+        "It replaces the need for logs completely",
+        "It only monitors disk space",
+        "It is always free"
+      ],
       "answer": 0,
       "explanation": "Server monitoring tells you a machine is busy. APM follows a single user request through every service and call it touches, so you can pinpoint the slow step and its root cause much faster."
     },
@@ -345,7 +641,12 @@
       "id": "mon-05",
       "topic": "monitoring",
       "question": "The on-call team gets 200 alerts a night and has started ignoring them. What is the best fix?",
-      "options": ["Turn off all alerts at night", "Hire more on-call engineers", "Send alerts by email instead", "Alert on symptoms users feel (errors, latency against SLOs) and send the rest to dashboards or tickets"],
+      "options": [
+        "Turn off all alerts at night",
+        "Hire more on-call engineers",
+        "Send alerts by email instead",
+        "Alert on symptoms users feel (errors, latency against SLOs) and send the rest to dashboards or tickets"
+      ],
       "answer": 3,
       "explanation": "Every page should be urgent, actionable and user-affecting. Things like a brief CPU spike belong on a dashboard or in a ticket queue. Fewer, better alerts are what fixes alert fatigue."
     },
@@ -353,7 +654,12 @@
       "id": "itil-01",
       "topic": "itil",
       "question": "What is the difference between an incident and a problem in ITIL?",
-      "options": ["An incident is an unplanned interruption to restore quickly; a problem is the underlying cause of one or more incidents", "They are the same", "A problem is smaller than an incident", "Incidents are only for hardware"],
+      "options": [
+        "An incident is an unplanned interruption to restore quickly; a problem is the underlying cause of one or more incidents",
+        "They are the same",
+        "A problem is smaller than an incident",
+        "Incidents are only for hardware"
+      ],
       "answer": 0,
       "explanation": "Incident management restores service as fast as possible, often with a workaround. Problem management investigates why it happened and removes the root cause so it does not recur."
     },
@@ -361,7 +667,12 @@
       "id": "itil-02",
       "topic": "itil",
       "question": "How is incident priority usually decided?",
-      "options": ["By whoever shouts loudest", "By the order tickets arrive", "By combining impact (how many or how badly affected) and urgency (how fast it gets worse)", "By the customer's job title"],
+      "options": [
+        "By whoever shouts loudest",
+        "By the order tickets arrive",
+        "By combining impact (how many or how badly affected) and urgency (how fast it gets worse)",
+        "By the customer's job title"
+      ],
       "answer": 2,
       "explanation": "A priority matrix combines impact and urgency. Example: all users unable to log in = high impact and high urgency = P1. One user's cosmetic issue = low and low = P4."
     },
@@ -369,7 +680,12 @@
       "id": "itil-03",
       "topic": "itil",
       "question": "During a major incident, what comes first?",
-      "options": ["Finding the full root cause", "Restoring service (even with a workaround) and keeping stakeholders updated", "Writing the post-incident report", "Assigning blame"],
+      "options": [
+        "Finding the full root cause",
+        "Restoring service (even with a workaround) and keeping stakeholders updated",
+        "Writing the post-incident report",
+        "Assigning blame"
+      ],
       "answer": 1,
       "explanation": "The priority is getting users working again and communicating regularly, with clear owner, status and next update time. Root cause analysis follows once service is stable."
     },
@@ -377,7 +693,12 @@
       "id": "itil-04",
       "topic": "itil",
       "question": "What is a 'standard change'?",
-      "options": ["Any change made on a Monday", "A change that needs board approval", "A change made without telling anyone", "A low-risk, pre-approved, repeatable change that follows a documented procedure"],
+      "options": [
+        "Any change made on a Monday",
+        "A change that needs board approval",
+        "A change made without telling anyone",
+        "A low-risk, pre-approved, repeatable change that follows a documented procedure"
+      ],
       "answer": 3,
       "explanation": "Examples include resetting a password or adding a user to a group. Normal changes go through assessment and approval (often a CAB), and emergency changes are fast-tracked to fix urgent issues."
     },
@@ -385,7 +706,12 @@
       "id": "itil-05",
       "topic": "itil",
       "question": "What is a 'known error'?",
-      "options": ["A problem whose root cause is identified and has a documented workaround", "An error that users already reported", "A bug that has been fixed", "A typo in documentation"],
+      "options": [
+        "A problem whose root cause is identified and has a documented workaround",
+        "An error that users already reported",
+        "A bug that has been fixed",
+        "A typo in documentation"
+      ],
       "answer": 0,
       "explanation": "Recording known errors in a knowledge base lets the service desk apply the workaround immediately next time, which cuts resolution time and repeat escalations."
     },
@@ -393,7 +719,12 @@
       "id": "itil-06",
       "topic": "itil",
       "question": "What makes a post-incident review effective?",
-      "options": ["Identifying which person caused the outage", "Keeping it confidential within management", "Being blameless: focusing on timeline, contributing causes and concrete follow-up actions with owners", "Holding it only for P4 incidents"],
+      "options": [
+        "Identifying which person caused the outage",
+        "Keeping it confidential within management",
+        "Being blameless: focusing on timeline, contributing causes and concrete follow-up actions with owners",
+        "Holding it only for P4 incidents"
+      ],
       "answer": 2,
       "explanation": "Blameless reviews make people comfortable sharing what really happened. The output is a set of tracked actions (better alerts, runbooks, fixes) that prevent a repeat."
     },
@@ -401,7 +732,12 @@
       "id": "cicd-01",
       "topic": "cicd",
       "question": "What does Continuous Integration (CI) mean?",
-      "options": ["Deploying to production every minute", "Developers merge small changes often, and each change is automatically built and tested", "Writing code without tests", "Integrating two companies' systems"],
+      "options": [
+        "Deploying to production every minute",
+        "Developers merge small changes often, and each change is automatically built and tested",
+        "Writing code without tests",
+        "Integrating two companies' systems"
+      ],
       "answer": 1,
       "explanation": "Frequent small merges plus automatic builds and tests catch problems early, while they are small and easy to fix. You will set this up with GitHub Actions in Week 4."
     },
@@ -409,7 +745,12 @@
       "id": "cicd-02",
       "topic": "cicd",
       "question": "What is the difference between Continuous Delivery and Continuous Deployment?",
-      "options": ["They are identical", "Delivery is for mobile apps only", "Deployment skips all tests", "Delivery: every change is ready to release, but a human approves it. Deployment: every passing change goes to production automatically"],
+      "options": [
+        "They are identical",
+        "Delivery is for mobile apps only",
+        "Deployment skips all tests",
+        "Delivery: every change is ready to release, but a human approves it. Deployment: every passing change goes to production automatically"
+      ],
       "answer": 3,
       "explanation": "Both automate build, test and packaging. The only difference is the final step: a manual approval (delivery) or fully automatic release (deployment)."
     },
@@ -417,7 +758,12 @@
       "id": "cicd-03",
       "topic": "cicd",
       "question": "Where do GitHub Actions workflow files live in a repository?",
-      "options": [".github/workflows/ as .yml files", "In the README", "In requirements.txt", "In a folder called /actions at the root"],
+      "options": [
+        ".github/workflows/ as .yml files",
+        "In the README",
+        "In requirements.txt",
+        "In a folder called /actions at the root"
+      ],
       "answer": 0,
       "explanation": "Each YAML file in .github/workflows defines a workflow: when it runs (on push, on a schedule) and the jobs and steps, such as installing dependencies and running pytest."
     },
@@ -425,7 +771,12 @@
       "id": "cicd-04",
       "topic": "cicd",
       "question": "A pipeline needs an API key to run tests. Where should the key be stored?",
-      "options": ["Directly in the test file", "In the README so the team can find it", "In the CI tool's secret store (for example GitHub Secrets), injected as an environment variable", "In a commit message"],
+      "options": [
+        "Directly in the test file",
+        "In the README so the team can find it",
+        "In the CI tool's secret store (for example GitHub Secrets), injected as an environment variable",
+        "In a commit message"
+      ],
       "answer": 2,
       "explanation": "Secrets in code end up in Git history forever, even after deletion. Secret stores encrypt the value and hide it in logs. It is the same principle as your .env file, applied to CI."
     },
@@ -433,7 +784,12 @@
       "id": "cicd-05",
       "topic": "cicd",
       "question": "The pipeline's test stage fails. What should happen next?",
-      "options": ["Deploy anyway and fix it later", "The pipeline stops before deploying, and the team fixes the failing test or code first", "Delete the failing test", "Restart the pipeline until it passes"],
+      "options": [
+        "Deploy anyway and fix it later",
+        "The pipeline stops before deploying, and the team fixes the failing test or code first",
+        "Delete the failing test",
+        "Restart the pipeline until it passes"
+      ],
       "answer": 1,
       "explanation": "The whole point of a pipeline is to act as a quality gate. A red test blocks the release. Re-running until green hides flaky tests, and deleting tests removes your safety net."
     },
@@ -441,7 +797,12 @@
       "id": "beh-01",
       "topic": "behavioural",
       "question": "What does STAR stand for in behavioural interviews?",
-      "options": ["Situation, Task, Action, Result", "Strategy, Teamwork, Ambition, Results", "Story, Timing, Answer, Review", "Skills, Training, Attitude, Readiness"],
+      "options": [
+        "Situation, Task, Action, Result",
+        "Strategy, Teamwork, Ambition, Results",
+        "Story, Timing, Answer, Review",
+        "Skills, Training, Attitude, Readiness"
+      ],
       "answer": 0,
       "explanation": "Situation (context), Task (your responsibility), Action (what you did) and Result (the outcome, ideally measurable). It keeps answers focused and two to three minutes long."
     },
@@ -449,7 +810,12 @@
       "id": "beh-02",
       "topic": "behavioural",
       "question": "Which part of a STAR answer should usually get the most detail?",
-      "options": ["Situation", "Task", "Action, followed by a measurable Result", "None; keep every part equal"],
+      "options": [
+        "Situation",
+        "Task",
+        "Action, followed by a measurable Result",
+        "None; keep every part equal"
+      ],
       "answer": 2,
       "explanation": "Interviewers are assessing what you did and how. Keep the situation brief, then spend most of the time on your actions and finish with a concrete result, such as a percentage improvement or time saved."
     },
@@ -457,7 +823,12 @@
       "id": "beh-03",
       "topic": "behavioural",
       "question": "Your team solved a big outage together. When describing it, how should you talk about your role?",
-      "options": ["Only use 'we' to sound like a team player", "Say 'I' for the actions you personally took, and credit the team where it is due", "Claim you did everything", "Avoid team examples"],
+      "options": [
+        "Only use 'we' to sound like a team player",
+        "Say 'I' for the actions you personally took, and credit the team where it is due",
+        "Claim you did everything",
+        "Avoid team examples"
+      ],
       "answer": 1,
       "explanation": "Interviewers can only hire you, not your team. Using 'I' for your own decisions and actions, while acknowledging others, shows ownership and honesty."
     },
@@ -465,7 +836,12 @@
       "id": "beh-04",
       "topic": "behavioural",
       "question": "How should you answer 'Tell me about a time you made a mistake'?",
-      "options": ["Say you have never made one", "Choose a disaster that was someone else's fault", "Pick a minor example and move on quickly", "Give a real example, own it, explain how you fixed it, and what you changed so it would not happen again"],
+      "options": [
+        "Say you have never made one",
+        "Choose a disaster that was someone else's fault",
+        "Pick a minor example and move on quickly",
+        "Give a real example, own it, explain how you fixed it, and what you changed so it would not happen again"
+      ],
       "answer": 3,
       "explanation": "The question tests self-awareness and learning. A genuine mistake, clear ownership, the fix, and a lasting change (a checklist, an alert, a new process) is a strong answer."
     },
@@ -473,7 +849,12 @@
       "id": "beh-05",
       "topic": "behavioural",
       "question": "What is the best approach to 'Why should we hire you?'",
-      "options": ["Match two or three of their top requirements to specific evidence from your experience", "List every job you have had", "Say you really need the job", "Talk about the salary you want"],
+      "options": [
+        "Match two or three of their top requirements to specific evidence from your experience",
+        "List every job you have had",
+        "Say you really need the job",
+        "Talk about the salary you want"
+      ],
       "answer": 0,
       "explanation": "Reread the job description before the interview, pick the requirements they care about most, and back each one with a short, concrete example. It turns a generic question into proof of fit."
     },
@@ -481,9 +862,300 @@
       "id": "beh-06",
       "topic": "behavioural",
       "question": "At the end, the interviewer asks 'Do you have any questions for us?' What is the best response?",
-      "options": ["No, you covered everything", "Ask only about holidays and bonuses", "Ask one or two prepared questions, such as what success looks like in the first 90 days or the team's biggest current challenge", "Ask whether you got the job"],
+      "options": [
+        "No, you covered everything",
+        "Ask only about holidays and bonuses",
+        "Ask one or two prepared questions, such as what success looks like in the first 90 days or the team's biggest current challenge",
+        "Ask whether you got the job"
+      ],
       "answer": 2,
       "explanation": "Thoughtful questions show genuine interest and help you judge whether the role suits you. Prepare three in case some are answered during the interview."
+    },
+    {
+      "id": "web-01",
+      "topic": "web",
+      "question": "A user gets HTTP 401 from an API, and another user gets 403. What is the difference?",
+      "options": [
+        "Both mean the server is down",
+        "401: not authenticated (no valid login or token). 403: authenticated, but not allowed to access this resource",
+        "401 means page not found; 403 means timeout",
+        "403 is always a network error"
+      ],
+      "answer": 1,
+      "explanation": "401 Unauthorized means the request has no valid credentials, so log in or send a valid token. 403 Forbidden means the server knows who you are but your account lacks permission. In support, 401 points to login or token problems and 403 to roles and permissions."
+    },
+    {
+      "id": "web-02",
+      "topic": "web",
+      "question": "Which HTTP status code range means the problem is on the server side?",
+      "options": [
+        "2xx",
+        "3xx",
+        "4xx",
+        "5xx"
+      ],
+      "answer": 3,
+      "explanation": "2xx = success, 3xx = redirect, 4xx = client error (bad request, auth, not found), 5xx = server error (500 internal error, 502 bad gateway, 503 unavailable). A spike in 5xx usually means an incident on the service itself."
+    },
+    {
+      "id": "web-03",
+      "topic": "web",
+      "question": "In SAML single sign-on, what does the Identity Provider (IdP) do?",
+      "options": [
+        "Hosts the application the user wants",
+        "Authenticates the user and sends a signed assertion to the application (Service Provider)",
+        "Stores the application's database",
+        "Encrypts the user's laptop"
+      ],
+      "answer": 1,
+      "explanation": "The IdP (for example Azure AD/Entra or Okta) checks who the user is and sends a signed SAML assertion to the Service Provider, the app. Tools like SAML Tracer let you inspect that assertion to debug login failures, such as a wrong attribute, an expired certificate or clock skew."
+    },
+    {
+      "id": "web-04",
+      "topic": "web",
+      "question": "SSO logins suddenly fail for every user of one application after a weekend. What is a very common cause to check first?",
+      "options": [
+        "Users forgot their passwords",
+        "The IdP signing certificate expired or was rotated and the app still has the old one",
+        "The application's font changed",
+        "The users' browsers are too new"
+      ],
+      "answer": 1,
+      "explanation": "SAML assertions are signed with a certificate. If it expires or is rotated on the IdP without updating the Service Provider, signatures stop validating and everyone fails at once. Checking certificate dates is a quick first step."
+    },
+    {
+      "id": "web-05",
+      "topic": "web",
+      "question": "What is the main difference between REST and SOAP web services?",
+      "options": [
+        "REST only works on Windows",
+        "SOAP uses a strict XML message format with a contract (WSDL); REST uses standard HTTP methods on resources, usually with JSON",
+        "They are identical",
+        "REST cannot use authentication"
+      ],
+      "answer": 1,
+      "explanation": "SOAP is protocol-based, XML-only and contract-driven, and is common in older enterprise integrations. REST uses HTTP verbs (GET, POST, PUT, DELETE) on URLs, usually with JSON. Support engineers meet both when troubleshooting integrations."
+    },
+    {
+      "id": "web-06",
+      "topic": "web",
+      "question": "What does OAuth 2.0 mainly provide?",
+      "options": [
+        "Encryption of hard drives",
+        "Delegated authorisation: an app gets a limited access token to act on a user's behalf without seeing their password",
+        "A replacement for DNS",
+        "Database backups"
+      ],
+      "answer": 1,
+      "explanation": "With OAuth, the user approves access and the app receives a token with limited scopes and a lifetime. OpenID Connect (OIDC) adds an identity layer on top so the app also learns who the user is."
+    },
+    {
+      "id": "net-01",
+      "topic": "networking",
+      "question": "A user can reach a site by IP address but not by its name. What is the likely problem?",
+      "options": [
+        "The site's database is down",
+        "DNS resolution",
+        "The user's keyboard",
+        "TLS certificate expiry"
+      ],
+      "answer": 1,
+      "explanation": "If the IP works but the name does not, name resolution is failing. Check with nslookup or dig, look at the DNS server settings, and check for recent DNS record changes."
+    },
+    {
+      "id": "net-02",
+      "topic": "networking",
+      "question": "What is the key difference between TCP and UDP?",
+      "options": [
+        "TCP is connection-based and guarantees ordered delivery; UDP is connectionless and faster but does not guarantee delivery",
+        "UDP is always encrypted",
+        "TCP is only used for email",
+        "There is no difference"
+      ],
+      "answer": 0,
+      "explanation": "TCP sets up a connection and retransmits lost packets, which suits web, email and databases. UDP just sends packets, which suits DNS lookups, streaming and VoIP where speed matters more than every packet."
+    },
+    {
+      "id": "net-03",
+      "topic": "networking",
+      "question": "Users see a browser warning 'Your connection is not private' on an internal site. What should you check first?",
+      "options": [
+        "The site's TLS certificate (expired, wrong hostname, or untrusted issuer)",
+        "The server's CPU",
+        "The DNS TTL",
+        "The user's screen resolution"
+      ],
+      "answer": 0,
+      "explanation": "This warning comes from the TLS handshake. The usual causes are an expired certificate, a certificate issued for a different hostname, or a certificate signed by an authority the browser does not trust."
+    },
+    {
+      "id": "net-04",
+      "topic": "networking",
+      "question": "Which default ports go with HTTPS, SSH and DNS?",
+      "options": [
+        "80, 21, 25",
+        "443, 22, 53",
+        "8080, 23, 110",
+        "443, 3389, 25"
+      ],
+      "answer": 1,
+      "explanation": "HTTPS = 443, SSH = 22, DNS = 53. Others worth knowing: HTTP 80, RDP 3389, SMTP 25, SQL Server 1433, PostgreSQL 5432."
+    },
+    {
+      "id": "net-05",
+      "topic": "networking",
+      "question": "An app server cannot connect to its database on port 1433, but both servers are up. Which tool quickly tests whether the port is reachable?",
+      "options": [
+        "ping only",
+        "Test-NetConnection (Windows) or nc / telnet to the host and port",
+        "Notepad",
+        "A disk cleanup"
+      ],
+      "answer": 1,
+      "explanation": "ping only proves the host answers ICMP; it says nothing about a specific port. Test-NetConnection db01 -Port 1433 or nc -zv db01 1433 shows whether a firewall or the service is blocking the connection."
+    },
+    {
+      "id": "net-06",
+      "topic": "networking",
+      "question": "What does a load balancer health check do?",
+      "options": [
+        "Encrypts traffic",
+        "Regularly tests each backend server and stops sending traffic to ones that fail",
+        "Backs up the servers",
+        "Assigns IP addresses to users"
+      ],
+      "answer": 1,
+      "explanation": "The load balancer calls a health endpoint, for example /health, on each server. Servers that fail are taken out of rotation until they pass again, so users are not sent to a broken instance."
+    },
+    {
+      "id": "js-01",
+      "topic": "javascript",
+      "question": "In JavaScript, what is the difference between == and ===?",
+      "options": [
+        "No difference",
+        "=== compares value and type without conversion; == converts types first, so '5' == 5 is true but '5' === 5 is false",
+        "== is faster and always preferred",
+        "=== only works on strings"
+      ],
+      "answer": 1,
+      "explanation": "Loose equality (==) converts types before comparing, which causes surprises. Strict equality (===) is the safer default in almost all code, including ServiceNow scripts."
+    },
+    {
+      "id": "js-02",
+      "topic": "javascript",
+      "question": "What do let and const do differently from var?",
+      "options": [
+        "Nothing",
+        "let and const are block-scoped; const cannot be reassigned. var is function-scoped and can cause bugs when reused",
+        "var is newer",
+        "const makes objects completely unchangeable"
+      ],
+      "answer": 1,
+      "explanation": "Use const by default and let when the value must change. Note that const stops reassignment, but an object declared with const can still have its properties changed."
+    },
+    {
+      "id": "js-03",
+      "topic": "javascript",
+      "question": "A script fails with 'Cannot read properties of undefined (reading \"name\")'. What does it mean?",
+      "options": [
+        "The network is down",
+        "The code tried to read .name from something that is undefined, such as a missing record or misspelled variable",
+        "The browser is out of memory",
+        "JavaScript is disabled"
+      ],
+      "answer": 1,
+      "explanation": "Find which object is undefined (log it before the failing line) and why: a lookup that returned nothing, a typo, or data that has not loaded yet. Optional chaining (user?.name) avoids the crash when a missing value is acceptable."
+    },
+    {
+      "id": "js-04",
+      "topic": "javascript",
+      "question": "What does JSON.parse() do?",
+      "options": [
+        "Turns a JSON text string into a JavaScript object",
+        "Sends data to a server",
+        "Compresses a file",
+        "Validates an email address"
+      ],
+      "answer": 0,
+      "explanation": "JSON.parse turns text such as an API response into an object you can read in code. JSON.stringify does the reverse. Invalid JSON throws an error, so wrap it in try/catch when handling external data."
+    },
+    {
+      "id": "js-05",
+      "topic": "javascript",
+      "question": "Why do API calls in JavaScript usually use async/await or promises?",
+      "options": [
+        "To make the code shorter only",
+        "Network calls take time; async code waits for the response without freezing everything else",
+        "Because JavaScript cannot do maths",
+        "To encrypt the request"
+      ],
+      "answer": 1,
+      "explanation": "fetch() returns a promise. With await you pause that function until the response arrives while the rest of the page keeps working. Forgetting await is a classic bug where you get a Promise object instead of the data."
+    },
+    {
+      "id": "sc-01",
+      "topic": "supplychain",
+      "question": "What is S&OP (Sales and Operations Planning)?",
+      "options": [
+        "A ticketing tool",
+        "A regular process that aligns demand forecasts with supply, production and finance plans",
+        "A type of database",
+        "An accounting standard"
+      ],
+      "answer": 1,
+      "explanation": "S&OP brings sales, operations and finance together, usually monthly, to agree one plan. Planning platforms like Kinaxis model these plans and let teams test scenarios quickly."
+    },
+    {
+      "id": "sc-02",
+      "topic": "supplychain",
+      "question": "What does a supply chain planning system like Kinaxis typically use as its main data inputs?",
+      "options": [
+        "Only social media data",
+        "Demand forecasts, orders, inventory, bills of materials and supplier lead times, often loaded from the ERP",
+        "Website colour settings",
+        "Employee holiday calendars only"
+      ],
+      "answer": 1,
+      "explanation": "Planning tools pull master and transactional data from ERP systems such as SAP. Many support cases are really data problems: a missing part, a wrong lead time, or a failed data load."
+    },
+    {
+      "id": "sc-03",
+      "topic": "supplychain",
+      "question": "A planner says the forecast numbers in the planning tool look wrong since this morning. What is a good first check?",
+      "options": [
+        "Reinstall the application",
+        "Check whether the overnight data load or integration from the ERP completed and whether the source data changed",
+        "Tell the user to clear their screen",
+        "Restart the planner's laptop"
+      ],
+      "answer": 1,
+      "explanation": "Most 'wrong numbers' cases trace back to data: a failed or partial import, a changed mapping, or a source system change. Checking load logs and comparing with the source quickly separates data issues from software bugs."
+    },
+    {
+      "id": "sc-04",
+      "topic": "supplychain",
+      "question": "What is a bill of materials (BOM)?",
+      "options": [
+        "An invoice from a supplier",
+        "A list of the components and quantities needed to build a product",
+        "A shipping label",
+        "A customer complaint form"
+      ],
+      "answer": 1,
+      "explanation": "Planning systems explode the BOM to work out how many parts are needed for planned production. An error in a BOM ripples through supply plans, so it is a common thing to check."
+    },
+    {
+      "id": "sc-05",
+      "topic": "supplychain",
+      "question": "What is 'what-if' scenario planning?",
+      "options": [
+        "Guessing without data",
+        "Copying the plan and changing assumptions (such as a supplier delay) to see the impact before deciding",
+        "Deleting old plans",
+        "A type of SQL join"
+      ],
+      "answer": 1,
+      "explanation": "Kinaxis is known for fast scenario analysis: planners test a disruption or demand change in a copy of the plan and compare outcomes without touching the live plan."
     }
   ]
 }

@@ -64,3 +64,11 @@ def split_topics(topic_ids):
     """
     technical = [t for t in topic_ids if t != "behavioural"]
     return technical or list(CORE_TECHNICAL), ["behavioural"]
+
+
+def topic_sizes(bank):
+    """How many questions the bank has for each topic: {topic_id: count}."""
+    sizes = {}
+    for question in bank["questions"]:
+        sizes[question["topic"]] = sizes.get(question["topic"], 0) + 1
+    return sizes

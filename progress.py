@@ -107,39 +107,66 @@ def streak(conn, today):
     return count
 
 
-def readiness(conn, topic_ids, min_answered=3, pass_rate=0.8):
-    """Percent of a job's topics mastered: 3+ questions answered, 80%+ right on latest tries."""
-    if not topic_ids:
-        return 0
+def _latest_answers(conn):
+    """Latest answer for each question: {question_id: (topic, correct)}."""
     latest = {}
     rows = conn.execute("SELECT question_id, topic, correct FROM answers ORDER BY id")
     for question_id, topic, correct in rows:
         latest[question_id] = (topic, correct)
-
-    mastered = 0
-    for topic in topic_ids:
-        results = [correct for t, correct in latest.values() if t == topic]
-        if len(results) >= min_answered and sum(results) / len(results) >= pass_rate:
-            mastered += 1
-    return round(100 * mastered / len(topic_ids))
+    return latest
 
 
-def topic_stats(conn, topic_ids, min_answered=3, pass_rate=0.8):
-    """Per topic: questions answered, how many right (latest tries), and a status label."""
-    latest = {}
-    rows = conn.execute("SELECT question_id, topic, correct FROM answers ORDER BY id")
-    for question_id, topic, correct in rows:
-        latest[question_id] = (topic, correct)
+def topic_stats(conn, topic_ids, topic_sizes, pass_rate=0.8):
+    """Per topic: questions in the bank, answered, right on latest try, percent and status.
 
+    topic_sizes is {topic_id: number of questions in the bank}.
+    """
+    latest = _latest_answers(conn)
     stats = {}
     for topic in topic_ids:
         results = [correct for t, correct in latest.values() if t == topic]
+        total = topic_sizes.get(topic, 0)
         answered, right = len(results), sum(results)
+        percent = round(100 * right / total) if total else 0
         if answered == 0:
             status = "Not started"
-        elif answered >= min_answered and right / answered >= pass_rate:
+        elif total and right / total >= pass_rate:
             status = "Mastered"
         else:
             status = "Learning"
-        stats[topic] = {"answered": answered, "correct": right, "status": status}
+        stats[topic] = {
+            "total": total, "answered": answered, "correct": right,
+            "percent": percent, "status": status,
+        }
     return stats
+
+
+def readiness(conn, topic_ids, topic_sizes):
+    """Percent of all questions in these topics that you got right on your latest try."""
+    stats = topic_stats(conn, topic_ids, topic_sizes)
+    total = sum(s["total"] for s in stats.values())
+    right = sum(s["correct"] for s in stats.values())
+    return round(100 * right / total) if total else 0
+
+
+def _job_filter(job_id):
+    """SQL condition matching a job's challenges (e.g. 'abc', 'abc:technical')."""
+    return "(job_id = ? OR job_id LIKE ?)", (job_id, f"{job_id}:%")
+
+
+def job_summary(conn, job_id):
+    """Practice for one job: answers given, how many right, challenges finished, XP earned."""
+    condition, params = _job_filter(job_id)
+    answered, right = conn.execute(
+        f"SELECT COUNT(*), COALESCE(SUM(correct), 0) FROM answers WHERE {condition}", params
+    ).fetchone()
+    challenges = conn.execute(
+        f"SELECT COUNT(*) FROM challenges WHERE {condition}", params
+    ).fetchone()[0]
+    return {
+        "answered": answered,
+        "correct": right,
+        "accuracy": round(100 * right / answered) if answered else 0,
+        "challenges": challenges,
+        "xp": right * XP_PER_CORRECT + challenges * XP_PER_CHALLENGE,
+    }

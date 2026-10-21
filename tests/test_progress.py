@@ -5,8 +5,8 @@ from datetime import date, timedelta
 import pytest
 
 from progress import (
-    answers_for_day, complete_challenge, connect, level_for, question_history, readiness,
-    record_answer, streak, topic_stats, total_xp,
+    answers_for_day, complete_challenge, connect, job_summary, level_for, question_history,
+    readiness, record_answer, streak, topic_stats, total_xp,
 )
 
 TODAY = date(2026, 10, 20)
@@ -71,13 +71,22 @@ def test_streak_resets_after_a_missed_day(conn):
     assert streak(conn, TODAY) == 0
 
 
-def test_readiness_counts_mastered_topics(conn):
+def test_readiness_is_share_of_topic_questions_right(conn):
+    sizes = {"linux": 6, "sql": 6, "docker": 5}
     for n in range(1, 4):
         record_answer(conn, TODAY, "job-1", q(f"linux-0{n}", "linux"), True)
+    record_answer(conn, TODAY, "job-1", q("sql-01", "sql"), False)
+
+    # 3 right out of 17 questions in these topics
+    assert readiness(conn, ["linux", "sql", "docker"], sizes) == round(100 * 3 / 17)
+
+
+def test_readiness_uses_latest_answer(conn):
+    sizes = {"sql": 2}
+    record_answer(conn, TODAY, "job-1", q("sql-01", "sql"), False)
     record_answer(conn, TODAY, "job-1", q("sql-01", "sql"), True)
 
-    # linux mastered (3 of 3 right); sql not yet (only 1 answered); docker untouched
-    assert readiness(conn, ["linux", "sql", "docker"]) == 33
+    assert readiness(conn, ["sql"], sizes) == 50
 
 
 def test_history_can_ignore_todays_answers(conn):
@@ -99,12 +108,25 @@ def test_answers_for_day_only_returns_that_day_and_job(conn):
 
 
 def test_topic_stats_labels_each_topic(conn):
+    sizes = {"linux": 3, "sql": 6, "docker": 5}
     for n in range(1, 4):
         record_answer(conn, TODAY, "job-1", q(f"linux-0{n}", "linux"), True)
     record_answer(conn, TODAY, "job-1", q("sql-01", "sql"), False)
 
-    stats = topic_stats(conn, ["linux", "sql", "docker"])
+    stats = topic_stats(conn, ["linux", "sql", "docker"], sizes)
 
-    assert stats["linux"] == {"answered": 3, "correct": 3, "status": "Mastered"}
-    assert stats["sql"] == {"answered": 1, "correct": 0, "status": "Learning"}
+    assert stats["linux"]["status"] == "Mastered"
+    assert stats["linux"]["percent"] == 100
+    assert stats["sql"] == {"total": 6, "answered": 1, "correct": 0, "percent": 0, "status": "Learning"}
     assert stats["docker"]["status"] == "Not started"
+
+
+def test_job_summary_counts_only_that_job(conn):
+    record_answer(conn, TODAY, "job-1:technical", q("linux-01"), True)
+    record_answer(conn, TODAY, "job-1:behavioural", q("beh-01", "behavioural"), False)
+    record_answer(conn, TODAY, "job-2:technical", q("linux-02"), True)
+    complete_challenge(conn, TODAY, "job-1:technical")
+
+    summary = job_summary(conn, "job-1")
+
+    assert summary == {"answered": 2, "correct": 1, "accuracy": 50, "challenges": 1, "xp": 30}

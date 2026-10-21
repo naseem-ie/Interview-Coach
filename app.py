@@ -7,10 +7,10 @@ import streamlit as st
 from notion_data import load_jobs
 from progress import (
     XP_PER_CHALLENGE, XP_PER_CORRECT, XP_PER_LEVEL, answers_for_day, complete_challenge,
-    connect, level_for, question_history, readiness, record_answer, streak, topic_stats,
-    total_xp,
+    connect, job_summary, level_for, question_history, readiness, record_answer, streak,
+    topic_stats, total_xp,
 )
-from quiz import load_bank, pick_daily_questions, split_topics, topics_for_job
+from quiz import load_bank, pick_daily_questions, split_topics, topic_sizes, topics_for_job
 
 st.set_page_config(page_title="Interview Coach", page_icon="🎯")
 CLOSED = {"No reply - inactive", "Rejected", "Withdrawn"}
@@ -62,32 +62,48 @@ conn = connect()
 topic_ids = topics_for_job(job["skill_gaps"], bank["topics"])
 technical, behavioural = split_topics(topic_ids)
 
-# ---------- Header: streak, level, readiness ----------
+# ---------- Header: this job ----------
 st.title(job["company"])
 st.caption(job["role"])
 
-xp = total_xp(conn)
-level_number, level_name, xp_into_level = level_for(xp)
-days = streak(conn, today)
-col1, col2, col3, col4 = st.columns(4)
-col1.metric("🔥 Streak", f"{days} day" if days == 1 else f"{days} days")
-col2.metric(f"⭐ Level · {level_name}", level_number)
-col3.metric("🛠️ Technical", f"{readiness(conn, technical)}%")
-col4.metric("🗣️ Behavioural", f"{readiness(conn, behavioural)}%")
-xp_to_next = XP_PER_LEVEL - xp_into_level
-st.progress(
-    min(xp_into_level / XP_PER_LEVEL, 1.0),
-    text=f"{xp} XP total across all jobs · {xp_to_next} XP to the next level",
+sizes = topic_sizes(bank)
+summary = job_summary(conn, job["id"])
+
+st.markdown("#### 🎯 Readiness for this job")
+col1, col2, col3 = st.columns(3)
+col1.metric("🛠️ Technical", f"{readiness(conn, technical, sizes)}%")
+col2.metric("🗣️ Behavioural", f"{readiness(conn, behavioural, sizes)}%")
+col3.metric("✍️ Practised here", f"{summary['correct']} of {summary['answered']} right")
+st.caption(
+    f"Readiness = share of this job's topic questions you have got right on your latest try. "
+    f"You have earned {summary['xp']} XP and finished {summary['challenges']} "
+    f"challenge(s) for this job."
 )
 
 with st.expander("📊 Topic breakdown: what to work on"):
-    stats = topic_stats(conn, technical + behavioural)
+    stats = topic_stats(conn, technical + behavioural, sizes)
     icons = {"Mastered": "✅", "Learning": "📘", "Not started": "⬜"}
     for topic_id, s in stats.items():
-        right = f"{s['correct']} of {s['answered']} right" if s["answered"] else "no answers yet"
         name = bank["topics"][topic_id]["name"]
-        st.write(f"{icons[s['status']]} **{name}**: {s['status']} ({right})")
-    st.caption("A topic is mastered once you have answered 3+ of its questions with 80%+ right.")
+        st.write(
+            f"{icons[s['status']]} **{name}**: {s['percent']}% "
+            f"({s['correct']} of {s['total']} questions right) · {s['status']}"
+        )
+        st.progress(s["percent"] / 100)
+    st.caption("A topic is mastered once you have got 80% of its questions right on your latest try.")
+
+# ---------- Overall progress (all jobs) ----------
+xp = total_xp(conn)
+level_number, level_name, xp_into_level = level_for(xp)
+days = streak(conn, today)
+xp_to_next = XP_PER_LEVEL - xp_into_level
+with st.container(border=True):
+    st.caption("🌍 Overall progress across all jobs")
+    col1, col2, col3 = st.columns(3)
+    col1.metric("🔥 Streak", f"{days} day" if days == 1 else f"{days} days")
+    col2.metric(f"⭐ Level · {level_name}", level_number)
+    col3.metric("💎 Total XP", xp)
+    st.progress(min(xp_into_level / XP_PER_LEVEL, 1.0), text=f"{xp_to_next} XP to the next level")
 
 st.divider()
 
