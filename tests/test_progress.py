@@ -5,8 +5,8 @@ from datetime import date, timedelta
 import pytest
 
 from progress import (
-    answers_for_day, complete_challenge, connect, job_summary, level_for, question_history,
-    readiness, recent_accuracy, record_answer, streak, topic_stats, total_xp,
+    answers_for_day, complete_challenge, connect, job_summary, level_for, mock_tests, question_history,
+    readiness, recent_accuracy, record_answer, record_mock_test, streak, topic_stats, total_xp,
 )
 
 TODAY = date(2026, 10, 20)
@@ -141,3 +141,23 @@ def test_recent_accuracy_uses_only_the_latest_answers(conn):
     assert recent_accuracy(conn, "aptitude", last=3) == 100
     assert recent_accuracy(conn, "aptitude") == 75
     assert recent_accuracy(conn, "nothing-yet") == 0
+
+
+def test_mock_test_results_are_saved_newest_first(conn):
+    record_mock_test(conn, TODAY, "speed", 12, 20, 25, 480)
+    record_mock_test(conn, TODAY, "speed", 15, 22, 25, 470)
+    record_mock_test(conn, TODAY, "numerical", 9, 12, 12, 600)
+
+    results = mock_tests(conn, "speed")
+
+    assert [r["right"] for r in results] == [15, 12]
+    assert results[0] == {"day": "2026-10-20", "right": 15, "answered": 22, "total": 25, "seconds": 470}
+
+
+def test_recent_accuracy_includes_extra_practice_and_mock_answers(conn):
+    record_answer(conn, TODAY, "aptitude", q("apt-1", "numerical"), True)
+    record_answer(conn, TODAY, "aptitude:extra", q("extra-1", "logical"), False)
+    record_answer(conn, TODAY, "aptitude:mock", q("mock-1", "logical"), True)
+    record_answer(conn, TODAY, "aptitudeX", q("other", "logical"), False)
+
+    assert recent_accuracy(conn, "aptitude") == 67

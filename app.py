@@ -7,7 +7,8 @@ import streamlit as st
 
 from notion_client import APIResponseError
 
-from aptitude import APTITUDE_TOPICS, CHALLENGE_ID as APTITUDE_ID, TARGET_SECONDS, daily_aptitude
+from aptitude import CHALLENGE_ID as APTITUDE_ID, TARGET_SECONDS, daily_aptitude
+from aptitude_page import render_extra, render_mock, render_tips, show_tip
 
 from notion_data import STATUSES, load_job_description, load_jobs, update_status
 from progress import (
@@ -132,12 +133,27 @@ mode = st.radio(
 mode_key = {"🛠": "technical", "🗣": "behavioural", "🧠": "aptitude"}[mode[0]]
 history = question_history(conn, before=today)
 
+run_daily = True
 if mode_key == "aptitude":
     st.caption(
-        "Aptitude tests (like the CCAT or SHL) screen candidates before interviews. This set is "
-        f"the same for every job: numerical, logical and verbal. Aim for under {TARGET_SECONDS} "
-        "seconds a question."
+        "Aptitude tests (like the CCAT or SHL) often arrive without warning before interviews. "
+        "They are the same for every job: numerical, logical and verbal."
     )
+    activity = st.radio(
+        "Aptitude practice",
+        ["📅 Daily 6", "➕ Practise more", "⏱️ Timed mock test", "📘 Tips & tricks"],
+        horizontal=True,
+        label_visibility="collapsed",
+    )
+    if activity == "➕ Practise more":
+        render_extra(bank, conn, today)
+        run_daily = False
+    elif activity == "⏱️ Timed mock test":
+        render_mock(bank, conn, today)
+        run_daily = False
+    elif activity == "📘 Tips & tricks":
+        render_tips(bank)
+        run_daily = False
     challenge_id = APTITUDE_ID
     questions = daily_aptitude(bank, today, history=history)
 else:
@@ -150,97 +166,103 @@ else:
     st.caption("Topics: " + " · ".join(bank["topics"][t]["name"] for t in practice_topics))
     challenge_id = f"{job['id']}:{mode_key}"
     questions = pick_daily_questions(bank, practice_topics, today, job_id=challenge_id, history=history)
-answered = answers_for_day(conn, today, challenge_id)
-done = [q for q in questions if q["id"] in answered]
-remaining = [q for q in questions if q["id"] not in answered]
+if run_daily:
+    answered = answers_for_day(conn, today, challenge_id)
+    done = [q for q in questions if q["id"] in answered]
+    remaining = [q for q in questions if q["id"] not in answered]
 
-if not remaining:
-    complete_challenge(conn, today, challenge_id)
+    if not remaining:
+        complete_challenge(conn, today, challenge_id)
 
-# ---------- Today's challenge ----------
-feedback = st.session_state.get("feedback")
-if feedback and feedback["challenge_id"] != challenge_id:
-    feedback = None
+    # ---------- Today's challenge ----------
+    feedback = st.session_state.get("feedback")
+    if feedback and feedback["challenge_id"] != challenge_id:
+        feedback = None
 
-if feedback:
-    # Show the result of the answer just given
-    question = next(q for q in questions if q["id"] == feedback["question_id"])
-    st.subheader(f"Question {len(done)} of {len(questions)}")
-    st.write(question["question"])
-    correct_letter = LETTERS[question["answer"]]
-    if feedback["correct"]:
-        st.success(f"✅ Correct! +{XP_PER_CORRECT} XP")
-    else:
-        st.error(f"❌ Not quite. You chose {feedback['chosen']}; the answer is {correct_letter}.")
-    if mode_key == "aptitude":
-        seconds = feedback.get("seconds", 0)
-        pace = "✅ on pace" if seconds <= TARGET_SECONDS else "⚠️ slower than test pace"
-        st.caption(f"⏱️ Answered in {seconds} s (target: under {TARGET_SECONDS} s) · {pace}")
-    st.info(f"**Answer:** {question['options'][question['answer']]}\n\n{question['explanation']}")
-    topic = bank["topics"][question["topic"]]
-    st.markdown(f"📚 Study more: [{topic['name']}]({topic['study_link']})")
-
-    label = "Next question ➡️" if remaining else "See today's results 🏁"
-    if st.button(label, type="primary"):
-        st.session_state.pop("feedback")
-        if not remaining:
-            st.session_state["celebrate"] = True
-        st.rerun()
-
-elif remaining:
-    # Ask the next unanswered question
-    question = remaining[0]
-    started = st.session_state.setdefault("started", {})
-    started.setdefault(question["id"], time.time())
-    number = len(done) + 1
-    st.subheader(f"Question {number} of {len(questions)}")
-    st.progress(len(done) / len(questions))
-    with st.container(border=True):
-        st.caption(bank["topics"][question["topic"]]["name"])
-        with st.form(f"form-{question['id']}"):
-            st.markdown(f"**{question['question']}**")
-            choice = st.radio(
-                "Your answer",
-                options=range(len(question["options"])),
-                format_func=lambda i: f"{LETTERS[i]}) {question['options'][i]}",
-                index=None,
-            )
-            submitted = st.form_submit_button("Submit answer", type="primary")
-    if submitted:
-        if choice is None:
-            st.warning("Pick an answer first.")
+    if feedback:
+        # Show the result of the answer just given
+        question = next(q for q in questions if q["id"] == feedback["question_id"])
+        st.subheader(f"Question {len(done)} of {len(questions)}")
+        st.write(question["question"])
+        correct_letter = LETTERS[question["answer"]]
+        if feedback["correct"]:
+            st.success(f"✅ Correct! +{XP_PER_CORRECT} XP")
         else:
-            correct = choice == question["answer"]
-            record_answer(conn, today, challenge_id, question, correct)
-            seconds = time.time() - started.pop(question["id"], time.time())
-            st.session_state["feedback"] = {
-                "seconds": round(seconds),
-                "challenge_id": challenge_id,
-                "question_id": question["id"],
-                "chosen": LETTERS[choice],
-                "correct": correct,
-            }
+            st.error(f"❌ Not quite. You chose {feedback['chosen']}; the answer is {correct_letter}.")
+        if mode_key == "aptitude":
+            seconds = feedback.get("seconds", 0)
+            pace = "✅ on pace" if seconds <= TARGET_SECONDS else "⚠️ slower than test pace"
+            st.caption(f"⏱️ Answered in {seconds} s (target: under {TARGET_SECONDS} s) · {pace}")
+        st.info(f"**Answer:** {question['options'][question['answer']]}\n\n{question['explanation']}")
+        if mode_key == "aptitude":
+            show_tip(question)
+        topic = bank["topics"][question["topic"]]
+        st.markdown(f"📚 Study more: [{topic['name']}]({topic['study_link']})")
+
+        label = "Next question ➡️" if remaining else "See today's results 🏁"
+        if st.button(label, type="primary"):
+            st.session_state.pop("feedback")
+            if not remaining:
+                st.session_state["celebrate"] = True
             st.rerun()
 
-else:
-    # Challenge finished for today
-    if st.session_state.pop("celebrate", False):
-        st.balloons()
-    score = sum(answered[q["id"]] for q in questions)
-    earned = score * XP_PER_CORRECT + XP_PER_CHALLENGE
-    st.subheader("🏁 Today's challenge complete")
-    st.write(
-        f"You scored **{score} out of {len(questions)}** and earned **{earned} XP** "
-        f"on this challenge ({score} × {XP_PER_CORRECT} for correct answers "
-        f"+ {XP_PER_CHALLENGE} finishing bonus)."
-    )
-    missed = [q for q in questions if not answered[q["id"]]]
-    if missed:
-        st.markdown("**Worth revisiting** (these will come back soon):")
-        for q in missed:
-            topic = bank["topics"][q["topic"]]
-            st.markdown(f"- {q['question']} ([{topic['name']}]({topic['study_link']}))")
-    st.info("Come back tomorrow for a new set. Or choose another kind of practice above to keep going.")
+    elif remaining:
+        # Ask the next unanswered question
+        question = remaining[0]
+        started = st.session_state.setdefault("started", {})
+        started.setdefault(question["id"], time.time())
+        number = len(done) + 1
+        st.subheader(f"Question {number} of {len(questions)}")
+        st.progress(len(done) / len(questions))
+        with st.container(border=True):
+            st.caption(bank["topics"][question["topic"]]["name"])
+            with st.form(f"form-{question['id']}"):
+                st.markdown(f"**{question['question']}**")
+                choice = st.radio(
+                    "Your answer",
+                    options=range(len(question["options"])),
+                    format_func=lambda i: f"{LETTERS[i]}) {question['options'][i]}",
+                    index=None,
+                )
+                submitted = st.form_submit_button("Submit answer", type="primary")
+        if submitted:
+            if choice is None:
+                st.warning("Pick an answer first.")
+            else:
+                correct = choice == question["answer"]
+                record_answer(conn, today, challenge_id, question, correct)
+                seconds = time.time() - started.pop(question["id"], time.time())
+                st.session_state["feedback"] = {
+                    "seconds": round(seconds),
+                    "challenge_id": challenge_id,
+                    "question_id": question["id"],
+                    "chosen": LETTERS[choice],
+                    "correct": correct,
+                }
+                st.rerun()
+
+    else:
+        # Challenge finished for today
+        if st.session_state.pop("celebrate", False):
+            st.balloons()
+        score = sum(answered[q["id"]] for q in questions)
+        earned = score * XP_PER_CORRECT + XP_PER_CHALLENGE
+        st.subheader("🏁 Today's challenge complete")
+        st.write(
+            f"You scored **{score} out of {len(questions)}** and earned **{earned} XP** "
+            f"on this challenge ({score} × {XP_PER_CORRECT} for correct answers "
+            f"+ {XP_PER_CHALLENGE} finishing bonus)."
+        )
+        missed = [q for q in questions if not answered[q["id"]]]
+        if missed:
+            st.markdown("**Worth revisiting** (these will come back soon):")
+            for q in missed:
+                topic = bank["topics"][q["topic"]]
+                st.markdown(f"- {q['question']} ([{topic['name']}]({topic['study_link']}))")
+        if mode_key == "aptitude":
+            st.info("Come back tomorrow for a new set, or choose ➕ Practise more or ⏱️ Timed mock test above.")
+        else:
+            st.info("Come back tomorrow for a new set. Or choose another kind of practice above to keep going.")
 
 conn.close()
 

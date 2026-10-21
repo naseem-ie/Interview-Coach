@@ -203,6 +203,7 @@ def generate(topic, rng, question_id):
     return {
         "id": question_id,
         "topic": topic,
+        "kind": make.__name__,
         "question": question,
         "options": options,
         "answer": answer,
@@ -221,3 +222,74 @@ def daily_aptitude(bank, day, history=None, per_topic=2):
         bank, ["verbal"], day, job_id=CHALLENGE_ID, count=per_topic, history=history
     )
     return questions
+
+
+# ---------- Extra practice and timed mock tests ----------
+
+EXTRA_ID = f"{CHALLENGE_ID}:extra"
+MOCK_ID = f"{CHALLENGE_ID}:mock"
+
+# Formats modelled on common screening tests. They copy the pace and mix, not the real questions.
+MOCK_FORMATS = {
+    "speed": {
+        "name": "⚡ Speed test (CCAT-style)",
+        "minutes": 8,
+        "mix": {"numerical": 10, "logical": 8, "verbal": 7},
+        "about": "A fast mixed test. The real CCAT is 50 questions in 15 minutes (about 18 s each), "
+                 "so most people do not finish. Answer what you can quickly and skip what is slow.",
+    },
+    "numerical": {
+        "name": "🔢 Numerical reasoning (SHL-style)",
+        "minutes": 12,
+        "mix": {"numerical": 12},
+        "about": "Percentages, ratios, rates and averages at about a minute each, like the numerical "
+                 "tests many large employers use.",
+    },
+    "logical": {
+        "name": "🧩 Logical sequences",
+        "minutes": 8,
+        "mix": {"logical": 15},
+        "about": "Number patterns at about 30 seconds each. Spot the rule fast, then move on.",
+    },
+}
+
+
+def build_mock(bank, format_key, rng):
+    """Make a fresh mock test in the given format, in shuffled order."""
+    token = f"{rng.getrandbits(32):08x}"
+    verbal_bank = [q for q in bank["questions"] if q["topic"] == "verbal"]
+    questions = []
+    for topic, count in MOCK_FORMATS[format_key]["mix"].items():
+        if topic == "verbal":
+            questions += rng.sample(verbal_bank, min(count, len(verbal_bank)))
+        else:
+            for n in range(count):
+                questions.append(generate(topic, rng, f"mock-{token}-{topic}-{n}"))
+    rng.shuffle(questions)
+    return questions
+
+
+def extra_question(bank, rng):
+    """One extra practice question: mostly generated, sometimes verbal from the bank."""
+    topic = rng.choice(["numerical", "numerical", "logical", "logical", "verbal"])
+    if topic == "verbal":
+        return rng.choice([q for q in bank["questions"] if q["topic"] == "verbal"])
+    return generate(topic, rng, f"extra-{rng.getrandbits(32):08x}")
+
+
+def score_mock(questions, chosen):
+    """Score a mock test. chosen is {question_id: option index} for the questions answered."""
+    by_topic = {}
+    right = 0
+    for q in questions:
+        topic = by_topic.setdefault(q["topic"], {"right": 0, "total": 0})
+        topic["total"] += 1
+        if q["id"] in chosen and chosen[q["id"]] == q["answer"]:
+            topic["right"] += 1
+            right += 1
+    return {
+        "right": right,
+        "answered": len(chosen),
+        "total": len(questions),
+        "by_topic": by_topic,
+    }
