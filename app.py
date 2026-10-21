@@ -1,5 +1,6 @@
 """Interview Coach - a daily challenge for the job you are preparing for."""
 
+import os
 import time
 from datetime import date
 
@@ -7,6 +8,7 @@ import streamlit as st
 
 from notion_client import APIResponseError
 
+from backup import answers_csv, backup_folder, backup_now, backups, daily_backup, interviews_csv
 from aptitude import CHALLENGE_ID as APTITUDE_ID, TARGET_SECONDS, daily_aptitude
 from ai_practice import render_ai_practice
 from interview_page import render_interview
@@ -14,10 +16,9 @@ from aptitude_page import render_extra, render_mock, render_tips, show_tip
 
 from notion_data import STATUSES, load_job_description, load_jobs, update_status
 from progress import (
-    XP_PER_CHALLENGE, XP_PER_CORRECT, XP_PER_LEVEL, ai_questions, ai_skill_stats, answers_for_day,
-    combined_readiness, complete_challenge, connect, job_summary, level_for, question_history, readiness, recent_accuracy, record_answer,
-    streak,
-    topic_stats, total_xp,
+    DB_FILE, XP_PER_CHALLENGE, XP_PER_CORRECT, XP_PER_LEVEL, ai_questions, ai_skill_stats,
+    answers_for_day, combined_readiness, complete_challenge, connect, job_summary, level_for,
+    question_history, readiness, recent_accuracy, record_answer, streak, topic_stats, total_xp,
 )
 from quiz import load_bank, pick_daily_questions, split_topics, topic_sizes, topics_for_job, uncovered_gaps
 
@@ -73,6 +74,54 @@ with st.sidebar:
 bank = get_bank()
 today = date.today()
 conn = connect()
+
+# ---------- Sidebar: backup and export ----------
+with st.sidebar:
+    folder = backup_folder()
+    if not st.session_state.get("backup_checked"):
+        st.session_state["backup_checked"] = True
+        try:
+            if daily_backup(DB_FILE, folder, today):
+                st.toast("💾 Today's backup saved")
+        except OSError as error:
+            st.warning(f"Daily backup failed: {error}")
+    with st.expander("💾 Backup & export"):
+        st.caption(
+            "Your progress is backed up **automatically** once a day to this folder "
+            "(OneDrive keeps it safe in the cloud). You don't need to do anything."
+        )
+        st.code(str(folder), language=None)
+        saved = backups(folder)
+        latest = saved[0].stem.removeprefix("progress-") if saved else "none yet"
+        st.caption(f"Latest backup: {latest} · {len(saved)} kept (newest 10)")
+        col1, col2 = st.columns(2)
+        if col1.button("Back up now"):
+            try:
+                saved = [backup_now(DB_FILE, folder, today)]
+                st.success(f"Saved {saved[0].name}")
+            except OSError as error:
+                st.error(f"Backup failed: {error}")
+        if hasattr(os, "startfile") and col2.button("📂 Open folder"):
+            folder.mkdir(parents=True, exist_ok=True)
+            os.startfile(folder)  # opens File Explorer (Windows only)
+        if saved:
+            st.download_button(
+                "📥 Download a backup copy", saved[0].read_bytes(), file_name=saved[0].name,
+                mime="application/octet-stream",
+            )
+        names = {j["id"]: f"{j['company']} - {j['role']}" for j in jobs}
+        st.download_button(
+            "📥 My answers (CSV)", answers_csv(conn, names).encode("utf-8-sig"),
+            file_name=f"interview-coach-answers-{today}.csv", mime="text/csv",
+        )
+        st.download_button(
+            "📥 My mock interviews (CSV)", interviews_csv(conn, names).encode("utf-8-sig"),
+            file_name=f"interview-coach-interviews-{today}.csv", mime="text/csv",
+        )
+        st.caption(
+            "**To restore on a new laptop:** close the app, copy the newest backup into the "
+            "project folder, rename it to progress.db, then start the app."
+        )
 
 topic_ids = topics_for_job(job["skill_gaps"], bank["topics"])
 technical, behavioural = split_topics(topic_ids)
