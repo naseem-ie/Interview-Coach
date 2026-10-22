@@ -62,7 +62,8 @@ flowchart LR
 | Data | Notion API (`notion-client`), SQLite |
 | AI | Ollama running `qwen3.5:4b` locally (CPU only, no GPU needed) |
 | Testing | pytest: 198 tests, using fake Notion and fake AI clients so they run in about a second |
-| CI | GitHub Actions runs every test on every push |
+| CI | GitHub Actions runs every test and builds and starts the Docker image on every push |
+| Packaging | Docker (`python:3.11-slim`, runs as a non-root user) |
 
 ## 🔒 Privacy and cost
 
@@ -122,6 +123,22 @@ Quizzes and aptitude tests work without it. AI practice and mock interviews need
    NOTION_DATABASE_ID=your-database-id
    ```
 
+### Or run it with Docker
+
+If you have [Docker](https://www.docker.com/products/docker-desktop/), you don't need Python or a venv:
+
+```bash
+docker build -t interview-coach .
+
+# Demo mode, nothing else needed
+docker run --rm -p 8501:8501 interview-coach
+
+# Your own Notion jobs, with progress kept in a Docker volume between runs
+docker run --rm -p 8501:8501 --env-file .env -v interview-coach-data:/data interview-coach
+```
+
+Then open http://localhost:8501. The `.env` file is passed in when the container starts, so the Notion key is never stored in the image. For the AI features, keep Ollama running on your computer; the container reaches it through `host.docker.internal`. On Linux, add `--add-host=host.docker.internal:host-gateway` to `docker run`.
+
 ### 5. Run the tests
 
 ```bash
@@ -159,7 +176,7 @@ tests/               pytest suite
 
 ## 🗺️ Roadmap
 
-- [ ] Docker image for one-command setup
+- [x] Docker image for one-command setup
 - [ ] More verbal reasoning questions
 - [ ] Write prep status and best mock interview score back to Notion
 

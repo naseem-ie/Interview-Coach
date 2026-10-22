@@ -12,7 +12,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 SAMPLE_FILE = Path(__file__).parent / "data" / "sample_jobs.json"
-DEMO_DB = Path(__file__).parent / "demo.db"
+DEMO_DB = Path(os.getenv("DATA_DIR") or Path(__file__).parent) / "demo.db"
 
 
 def demo_mode():

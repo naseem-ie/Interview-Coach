@@ -28,3 +28,24 @@ jobs:
 
       - name: Run the tests
         run: python -m pytest -q
+
+  docker:
+    # Checks the Dockerfile still builds and the app starts inside the container
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v4
+
+      - name: Build the image
+        run: docker build -t interview-coach .
+
+      - name: Start the app in demo mode and check it answers
+        run: |
+          docker run -d --name coach -p 8501:8501 interview-coach
+          for i in $(seq 1 30); do
+            if curl -fs http://localhost:8501/_stcore/health; then echo " app is up"; exit 0; fi
+            sleep 2
+          done
+          docker logs coach
+          exit 1

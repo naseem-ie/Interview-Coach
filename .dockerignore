@@ -1,0 +1,12 @@
+# Never put secrets or personal data in the image
+.env
+*.db
+# Not needed to run the app
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.git/
+.github/
+docs/
+tests/

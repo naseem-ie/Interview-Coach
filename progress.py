@@ -1,11 +1,14 @@
 """Save and read your practice progress (answers, XP, streak, readiness) in SQLite."""
 
 import json
+import os
 import sqlite3
 from datetime import timedelta
 from pathlib import Path
 
-DB_FILE = Path(__file__).parent / "progress.db"
+# DATA_DIR lets Docker keep the database in a mounted folder; normally it sits next to the code
+DATA_DIR = Path(os.getenv("DATA_DIR") or Path(__file__).parent)
+DB_FILE = DATA_DIR / "progress.db"
 
 XP_PER_CORRECT = 10
 XP_PER_CHALLENGE = 20
