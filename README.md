@@ -109,6 +109,7 @@ Quizzes and aptitude tests work without it. AI practice and mock interviews need
    | Role | Text | Job list, mock interview questions |
    | Status | Select | Hiding closed jobs, updating status |
    | Skill gaps | Text, separated by `;` | Choosing topics and AI questions |
+   | Source | Select (LinkedIn, Indeed, jobs.ie, recruiter…) | Filtering jobs by where they came from |
    | Next action, Notes, Recruiter, Salary | Text | Job details |
    | Applied date, Follow-up due | Date | Job details |
    | Job link, Prep page | URL | Buttons in the app |

@@ -12,6 +12,7 @@ def test_reads_filled_in_row():
             "Company": {"title": [{"plain_text": "Acme"}, {"plain_text": " Ltd"}]},
             "Role": {"rich_text": [{"plain_text": "Support Engineer"}]},
             "Status": {"select": {"name": "Applied"}},
+            "Source": {"select": {"name": "Indeed"}},
             "Applied date": {"date": {"start": "2026-10-01"}},
             "Match score": {"number": 7},
             "Skill gaps": {"rich_text": [{"plain_text": "SQL; Linux"}]},
@@ -24,6 +25,7 @@ def test_reads_filled_in_row():
     assert job["company"] == "Acme Ltd"
     assert job["role"] == "Support Engineer"
     assert job["status"] == "Applied"
+    assert job["source"] == "Indeed"
     assert job["applied_date"] == "2026-10-01"
     assert job["match_score"] == 7
     assert job["skill_gaps"] == "SQL; Linux"
@@ -43,6 +45,7 @@ def test_empty_row_gives_safe_defaults():
 
     assert job["company"] == ""
     assert job["status"] == ""
+    assert job["source"] == ""
     assert job["applied_date"] == ""
     assert job["match_score"] is None
     assert job["job_link"] == ""

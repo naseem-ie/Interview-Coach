@@ -19,7 +19,7 @@ from notion_data import STATUSES, load_job_description, load_jobs, update_status
 from progress import (
     DB_FILE, XP_PER_CHALLENGE, XP_PER_CORRECT, XP_PER_LEVEL, ai_questions, ai_skill_stats,
     answers_for_day, combined_readiness, complete_challenge, connect, job_summary, level_for,
-    question_history, readiness, recent_accuracy, record_answer, streak, topic_stats, total_xp,
+    question_history, readiness, readiness_stage, recent_accuracy, record_answer, streak, topic_stats, total_xp,
 )
 from quiz import load_bank, pick_daily_questions, split_topics, topic_sizes, topics_for_job, uncovered_gaps
 
@@ -64,9 +64,27 @@ with st.sidebar:
         st.stop()
 
     show_closed = st.checkbox("Show inactive, rejected and withdrawn jobs")
-    visible = [job for job in jobs if show_closed or job["status"] not in CLOSED]
+    def source_of(job):
+        return job.get("source") or "Not set"
+
+    open_jobs = [job for job in jobs if show_closed or job["status"] not in CLOSED]
+    sources = sorted({source_of(job) for job in jobs})
+    chosen_sources = st.multiselect(
+        "Where the job came from", sources, placeholder="All sources",
+        format_func=lambda s: f"{s} ({sum(source_of(j) == s for j in open_jobs)})",
+        help="Leave empty to see every job. The number is how many jobs are shown for each source. "
+             "Set Source for each job in Notion.",
+    )
+    visible = [job for job in open_jobs if not chosen_sources or source_of(job) in chosen_sources]
     if not visible:
-        st.info("No open jobs. Tick the box above to see closed ones.")
+        hidden = [j for j in jobs if j["status"] in CLOSED and source_of(j) in chosen_sources]
+        if hidden and not show_closed:
+            st.info(
+                f"{len(hidden)} job(s) from this source are inactive, rejected or withdrawn. "
+                "Tick **Show inactive, rejected and withdrawn jobs** above to see them."
+            )
+        else:
+            st.info("No jobs match. Clear the source filter to see all jobs.")
         st.stop()
 
     index = st.selectbox(
@@ -75,7 +93,7 @@ with st.sidebar:
         format_func=lambda i: f"{visible[i]['company']} - {visible[i]['role']}",
     )
     job = visible[index]
-    st.caption(f"Status: {job['status'] or 'Not set'}")
+    st.caption(f"Status: {job['status'] or 'Not set'} · Source: {job.get('source') or 'Not set'}")
 
 # ---------- Today's questions and progress ----------
 bank = get_bank()
@@ -143,22 +161,36 @@ st.caption(job["role"])
 sizes = topic_sizes(bank)
 summary = job_summary(conn, job["id"])
 
-st.markdown("#### 🎯 Readiness for this job")
-col1, col2, col3 = st.columns(3)
 technical_stats = topic_stats(conn, technical, sizes)
 ai_stats = ai_skill_stats(conn, ai_pool)
+job_percent = combined_readiness(technical_stats, ai_stats, topic_stats(conn, behavioural, sizes))
+st.markdown(f"#### 🎯 Readiness for this job: {readiness_stage(job_percent)}")
+st.caption(
+    f"{job_percent}% of all this job's questions right. Stages: 🌱 under 40% · 📘 40–64% · "
+    "🟡 65–79% · ✅ 80% and above."
+)
+col1, col2, col3 = st.columns(3)
 col1.metric("🛠️ Technical", f"{combined_readiness(technical_stats, ai_stats)}%")
 col2.metric("🗣️ Behavioural", f"{readiness(conn, behavioural, sizes)}%")
 col3.metric(
-    "✍️ All answers for this job",
-    f"{summary['correct']} of {summary['answered']} correct",
+    "✍️ Practised for this job",
+    f"{summary['correct']} of {summary['answered']} correct" if summary["answered"] else "Not yet",
 )
 st.caption(
-    f"Readiness = share of this job's questions (question bank + 🤖 AI practice) you have got "
-    f"right on your latest try. "
-    f"You have earned {summary['xp']} XP and finished {summary['challenges']} "
-    f"challenge(s) for this job."
+    "Readiness = how many of this job's topic questions (question bank + 🤖 AI practice) you got "
+    "right on your latest try. Topics like SQL or behavioural are **shared between jobs**, so "
+    "practice for one job also counts for every other job with the same topics."
 )
+if summary["answered"]:
+    st.caption(
+        f"For this job you have earned {summary['xp']} XP and finished "
+        f"{summary['challenges']} challenge(s)."
+    )
+else:
+    st.info(
+        "You haven't practised with this job selected yet. Any readiness above comes from "
+        "practice for other jobs that share these topics."
+    )
 
 with st.expander("📊 Topic breakdown: what to work on"):
     stats = topic_stats(conn, technical + behavioural, sizes)
@@ -187,7 +219,11 @@ with st.container(border=True):
     st.caption("🌍 Overall progress across all jobs")
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("🔥 Streak", f"{days} day" if days == 1 else f"{days} days")
-    col2.metric(f"⭐ Level · {level_name}", level_number)
+    col2.metric(
+        f"⭐ Practice level · {level_name}", level_number,
+        help="Based on XP: how much you have practised across all jobs, not how ready you are. "
+             "For readiness, see the stage at the top of each job.",
+    )
     col3.metric("💎 Total XP", xp)
     col4.metric("🧠 Aptitude", f"{recent_accuracy(conn, APTITUDE_ID)}%", help="Accuracy over your last 30 aptitude answers")
     st.progress(min(xp_into_level / XP_PER_LEVEL, 1.0), text=f"{xp_to_next} XP to the next level")
@@ -378,6 +414,7 @@ with st.expander("Your notes, next steps and contacts"):
         st.write(f"**Follow-up due:** {job['follow_up_due']}")
     if job["skill_gaps"]:
         st.write(f"**Skill gaps:** {job['skill_gaps']}")
+    st.write(f"**Source:** {job.get('source') or 'Not set in Notion'}")
     st.write(f"**Recruiter:** {job['recruiter'] or '-'}")
     st.write(f"**Salary:** {job['salary'] or '-'}")
     if job["notes"]:

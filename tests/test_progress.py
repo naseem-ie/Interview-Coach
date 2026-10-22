@@ -35,9 +35,9 @@ def test_xp_counts_correct_answers_and_finished_challenges(conn):
 
 
 def test_levels():
-    assert level_for(0) == (1, "Rookie", 0)
-    assert level_for(150) == (2, "Learner", 50)
-    assert level_for(5000)[1] == "Interview-Ready"
+    assert level_for(0) == (1, "Starter", 0)
+    assert level_for(150) == (2, "Warming up", 50)
+    assert level_for(5000)[1] == "Marathoner"
 
 
 def test_history_tracks_latest_answer_and_run_of_correct(conn):
@@ -244,3 +244,14 @@ def test_interviews_are_saved_with_answers_and_skips_left_out(conn):
     assert past[1]["answered"] == 1
     assert past[1]["answers"][0]["feedback"]["tips"] == ["Add a number."]
     assert interviews(conn, "job-2") == []
+
+
+def test_readiness_stage_follows_the_job_score():
+    from progress import readiness_stage
+
+    assert readiness_stage(0) == "⬜ Not started"
+    assert readiness_stage(12) == "🌱 Getting started"
+    assert readiness_stage(40) == "📘 Building up"
+    assert readiness_stage(79) == "🟡 Nearly ready"
+    assert readiness_stage(80) == "✅ Interview-ready"
+    assert readiness_stage(100) == "✅ Interview-ready"

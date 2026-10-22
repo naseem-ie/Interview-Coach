@@ -4,7 +4,7 @@ from demo import demo_mode, load_sample_jobs, sample_description
 from quiz import load_bank, uncovered_gaps
 
 EXPECTED_KEYS = {
-    "id", "company", "role", "status", "applied_date", "follow_up_due", "next_action", "prep_status",
+    "id", "company", "role", "status", "source", "applied_date", "follow_up_due", "next_action", "prep_status",
     "skill_gaps", "match_score", "recruiter", "salary", "job_link", "prep_page", "notes", "description",
 }
 

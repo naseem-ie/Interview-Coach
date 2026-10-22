@@ -38,6 +38,7 @@ def page_to_job(page):
         "company": _text(p.get("Company", {})),
         "role": _text(p.get("Role", {})),
         "status": _select(p.get("Status", {})),
+        "source": _select(p.get("Source", {})),
         "applied_date": _date(p.get("Applied date", {})),
         "follow_up_due": _date(p.get("Follow-up due", {})),
         "next_action": _text(p.get("Next action", {})),

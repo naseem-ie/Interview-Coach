@@ -17,6 +17,7 @@
       "job_link": "",
       "prep_page": "",
       "notes": "Sample job for the demo. All companies and people are made up.",
+      "source": "LinkedIn (applied)",
       "description": "### About the role\n\nSupport our cloud HR platform for enterprise customers.\n\n### You will\n\n- Investigate and resolve L2 incidents within SLA\n- Write SQL to check customer data\n- Read logs on Linux servers\n- Work with developers on API integration issues\n\n### You have\n\n- 3+ years in application support\n- SQL, Linux and REST APIs\n- ITIL incident and problem management"
     },
     {
@@ -35,6 +36,7 @@
       "job_link": "",
       "prep_page": "",
       "notes": "Sample job for the demo. All companies and people are made up.",
+      "source": "Indeed",
       "description": "### About the role\n\nHelp warehouses and carriers use our planning software.\n\n### You will\n\n- Troubleshoot data integrations (JSON, XML)\n- Answer customer tickets in Zendesk\n- Join Agile sprint reviews\n\n### You have\n\n- Support experience with business software\n- SQL and basic API knowledge"
     },
     {
@@ -53,6 +55,7 @@
       "job_link": "",
       "prep_page": "",
       "notes": "Sample job for the demo. All companies and people are made up.",
+      "source": "Company website",
       "description": "### About the role\n\nKeep our patient booking platform running on AWS.\n\n### You have\n\n- AWS, Docker and Kubernetes\n- Monitoring with Grafana or Dynatrace\n- Python scripting for automation"
     },
     {
@@ -71,6 +74,7 @@
       "job_link": "",
       "prep_page": "",
       "notes": "Sample job for the demo. All companies and people are made up.",
+      "source": "LinkedIn (recruiter approached me)",
       "description": "### About the role\n\nLook after a portfolio of enterprise payment customers.\n\n### You have\n\n- Customer-facing technical experience\n- Clear communication with non-technical people"
     }
   ]

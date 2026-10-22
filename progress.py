@@ -13,9 +13,19 @@ DB_FILE = DATA_DIR / "progress.db"
 XP_PER_CORRECT = 10
 XP_PER_CHALLENGE = 20
 XP_PER_LEVEL = 100
+# Practice levels measure effort (XP), not skill, so the names describe effort
 LEVEL_NAMES = [
-    "Rookie", "Learner", "Practitioner", "Troubleshooter", "Analyst",
-    "Specialist", "Expert", "Senior", "Lead", "Interview-Ready",
+    "Starter", "Warming up", "Getting going", "Building habits", "Regular",
+    "Committed", "Determined", "Dedicated", "Unstoppable", "Marathoner",
+]
+
+# Readiness stages for one job, based on its scores: (lowest percent, stage)
+READINESS_STAGES = [
+    (80, "✅ Interview-ready"),
+    (65, "🟡 Nearly ready"),
+    (40, "📘 Building up"),
+    (1, "🌱 Getting started"),
+    (0, "⬜ Not started"),
 ]
 
 
@@ -229,6 +239,11 @@ def level_for(xp):
     """Return (level number, level name, XP into this level). Level 10 is the top."""
     number = min(xp // XP_PER_LEVEL + 1, len(LEVEL_NAMES))
     return number, LEVEL_NAMES[number - 1], xp - (number - 1) * XP_PER_LEVEL
+
+
+def readiness_stage(percent):
+    """The stage name for a job's overall readiness percent."""
+    return next(stage for lowest, stage in READINESS_STAGES if percent >= lowest)
 
 
 def streak(conn, today):
